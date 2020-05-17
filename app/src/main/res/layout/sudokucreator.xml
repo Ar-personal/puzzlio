@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sodukulayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/createsudoku2"
+        android:layout_width="157dp"
+        android:layout_height="63dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="117dp"
+        android:layout_marginBottom="13dp"
+        android:backgroundTint="#48569C"
+        android:text="Attach media"
+        android:textSize="15dp" />
+
+    <Button
+        android:id="@+id/createsudoku"
+        android:layout_width="157dp"
+        android:layout_height="63dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="119dp"
+        android:layout_marginBottom="86dp"
+        android:backgroundTint="@color/appGreen"
+        android:text="Create"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/puzzleTitle"
+        android:layout_width="248dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="8dp"
+        android:text="name"
+        android:textColor="@color/black"
+        android:textSize="30dp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="201dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="50dp"
+        android:text="Sudoku"
+        android:textColor="@color/black"
+        android:textSize="30dp" />
+
+    <ToggleButton
+        android:id="@+id/lockgrid"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="20dp"
+        android:background="@color/colorPrimary"
+        android:backgroundTint="@color/colorPrimary"
+        android:button="@drawable/lockunlock"
+        android:padding="0dp"
+        android:textOff=""
+        android:textOn=""
+        android:checked="false"/>
+
+    <Button
+        android:id="@+id/lockbutton"
+        android:layout_width="50dp"
+        android:layout_height="59dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="100dp"
+        android:backgroundTint="@color/colorPrimary"
+        app:strokeColor="@color/black" />
+</RelativeLayout>

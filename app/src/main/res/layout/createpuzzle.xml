@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Spinner
+        android:id="@+id/puzzleTypeSpinner"
+        android:layout_width="243dp"
+        android:layout_height="60dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="81dp"
+        android:layout_marginTop="253dp"
+        android:background="@color/appBlue"
+        android:minHeight="30dp"
+        android:popupBackground="@color/appBlue"
+        android:visibility="visible"
+        android:gravity="center"
+        >
+
+
+    </Spinner>
+
+    <EditText
+        android:id="@+id/dimensionX"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/puzzleTypeSpinner"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="125dp"
+        android:layout_marginTop="105dp"
+        android:background="@color/appBlue"
+        android:gravity="center"
+        android:inputType="number"
+        android:maxLength="2"
+        android:textSize="20dp" />
+
+    <EditText
+        android:id="@+id/dimensionY"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/puzzleTypeSpinner"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="105dp"
+        android:layout_marginEnd="110dp"
+        android:background="@color/appBlue"
+        android:gravity="center"
+        android:inputType="number"
+        android:maxLength="2"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/createpuzzletitle"
+        android:layout_width="159dp"
+        android:layout_height="35dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="130dp"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:text="Puzzle Title"
+        android:textColor="@color/black"
+        android:textSize="24dp" />
+
+    <EditText
+        android:id="@+id/userpuzzletitle"
+        android:layout_width="243dp"
+        android:layout_height="66dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="98dp"
+        android:background="@color/appBlue"
+        android:gravity="center"
+        android:text="Puzzle name"
+        android:textColor="@color/colorPrimary"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/createpuzzletype"
+        android:layout_width="159dp"
+        android:layout_height="45dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="130dp"
+        android:layout_marginTop="187dp"
+        android:gravity="center"
+        android:text="Puzzle type"
+        android:textColor="@color/black"
+        android:textSize="24dp" />
+
+    <TextView
+        android:id="@+id/createpuzzledims"
+        android:layout_width="159dp"
+        android:layout_height="45dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="130dp"
+        android:layout_marginTop="344dp"
+        android:gravity="center"
+        android:text="Puzzle Size"
+        android:textColor="@color/black"
+        android:textSize="24dp" />
+
+    <TextView
+        android:id="@+id/X"
+        android:layout_width="33dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="171dp"
+        android:layout_marginBottom="252dp"
+        android:gravity="center"
+        android:text="X"
+        android:textColor="@color/black"
+        android:textSize="30dp" />
+
+    <Button
+        android:id="@+id/buttonCreate"
+        android:layout_width="196dp"
+        android:layout_height="70dp"
+        android:layout_below="@+id/puzzleTypeSpinner"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="224dp"
+        android:layout_marginEnd="94dp"
+        android:layout_marginBottom="62dp"
+        android:backgroundTint="@color/appGreen"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:text="Create" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="44dp"
+        android:layout_height="46dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="261dp"
+        android:layout_marginEnd="66dp"
+        app:srcCompat="@drawable/ic_arrow_drop_down_black_24dp" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="25dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="109dp"
+        android:layout_marginEnd="80dp"
+        app:srcCompat="@drawable/ic_edit_white_24dp" />
+
+    <ImageButton
+        android:id="@+id/createcancel"
+        android:layout_width="41dp"
+        android:layout_height="34dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="8dp"
+        app:srcCompat="@drawable/ic_cancel_red_24dp"
+        android:background="@color/colorPrimary"/>
+</RelativeLayout>

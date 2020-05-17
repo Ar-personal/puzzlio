@@ -1,0 +1,40 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/appBlue</item>
+        <item name="colorAccent">@color/appGreen</item>
+    </style>
+
+    <style name="barTheme" parent="Widget.MaterialComponents.BottomAppBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/appBlue</item>
+        <item name="colorPrimaryDark">@color/appBlue</item>
+        <item name="colorAccent">@color/appBlue</item>
+    </style>
+
+    <style name="popupTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name ="android:windowIsTranslucent">true</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+    </style>
+
+    <style name="puzzleTheme" parent="Theme.MaterialComponents">
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/appBlue</item>
+        <item name="colorAccent">@color/appGreen</item>
+    </style>
+
+    <style name="customBar" parent="Theme.MaterialComponents.NoActionBar">
+
+    </style>
+
+    <style name="spinnerItemStyle" parent="android:Widget.TextView.SpinnerItem">
+    </style>
+
+    <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
+        <item name="android:backgroundTint">@color/colorPrimary</item>
+    </style>
+
+</resources>

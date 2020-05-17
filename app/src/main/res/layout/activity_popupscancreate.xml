@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/gridborder"
+    >
+
+    <Button
+        android:id="@+id/buttonScan"
+        android:layout_width="362dp"
+        android:layout_height="151dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="26dp"
+        android:background="@drawable/buttonscan"
+        android:textSize="24dp"
+        android:fontFamily="@font/ropa_sans"
+        android:text="Scan using camera"
+        app:cornerRadius="30dp"
+        android:textColor="@color/colorPrimary"
+        android:backgroundTint="@color/black"/>
+
+    <Button
+        android:id="@+id/buttonCreate"
+        android:layout_width="362dp"
+        android:layout_height="151dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="21dp"
+        android:layout_marginTop="198dp"
+        android:layout_marginEnd="27dp"
+        android:background="@drawable/buttonscan"
+        android:fontFamily="@font/ropa_sans"
+        android:text="Create Manually"
+        android:textColor="@color/black"
+        android:textSize="24dp"
+        app:cornerRadius="30dp"
+        />
+
+
+
+</RelativeLayout>
