@@ -1,0 +1,59 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="264dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/appBlue"
+    android:padding="16dp"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark"
+    android:orientation="vertical"
+    android:gravity="bottom">
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="395dp"
+        android:layout_height="141dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="26dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="81dp"
+        app:srcCompat="@drawable/profile_circle" />
+
+    <TextView
+        android:id="@+id/puzzle_drawer_title"
+        android:layout_width="357dp"
+        android:layout_height="42dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="39dp"
+        android:height="30dp"
+        android:text="Puzzle Title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@android:color/white"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/puzzle_drawer_id"
+        android:layout_width="362dp"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:height="30dp"
+        android:text="Puzzle Id"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@android:color/white"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/puzzle_drawer_type"
+        android:layout_width="362dp"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-26dp"
+        android:height="30dp"
+        android:text="Puzzle Type"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@android:color/white"
+        android:textSize="20dp" />
+
+</RelativeLayout>

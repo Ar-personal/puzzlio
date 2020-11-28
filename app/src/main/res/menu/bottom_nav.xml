@@ -13,9 +13,9 @@
 />
 
     <item
-        android:id="@+id/home"
+        android:id="@+id/main"
         android:icon="@drawable/ic_home_white_24dp"
-        android:title="People"
+        android:title="Home"
         app:showAsAction="ifRoom"/>
 
 

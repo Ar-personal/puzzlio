@@ -55,7 +55,6 @@ public class PuzzleList extends Fragment implements Serializable {
             puzzleList = new ArrayList<>();
 
 
-
             ArrayList<ImageView> imgs = new ArrayList<>();
 
 
@@ -204,5 +203,19 @@ public class PuzzleList extends Fragment implements Serializable {
 //                    addItem(new LoadPuzzle(getContext(), name, arrayValues, arrayLocked, null, new int[]{x, y}, type));
             }
         }
+
+        public static void enableEdit(){
+            for(int i = 0; i < puzzleList.size(); i++){
+                int p = puzzleList.indexOf(i);
+                recyclerViewAdapter.toggleDel();
+            }
+        }
+
+    public static void disableEdit(){
+        for(int i = 0; i < recyclerViewAdapter.getItemCount(); i++){
+             recyclerViewAdapter.disableEdit();
+
+        }
+    }
     }
 

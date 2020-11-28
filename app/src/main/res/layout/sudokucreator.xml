@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/sodukulayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,11 +14,14 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="117dp"
-        android:layout_marginBottom="13dp"
+        android:layout_marginBottom="12dp"
         android:backgroundTint="#48569C"
         android:text="Attach media"
-        android:textSize="15dp" />
+        android:textSize="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toEndOf="@+id/createsudoku" />
 
     <Button
         android:id="@+id/createsudoku"
@@ -26,11 +30,13 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="119dp"
-        android:layout_marginBottom="86dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="12dp"
         android:backgroundTint="@color/appGreen"
         android:text="Create"
-        android:textSize="20dp" />
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/puzzleTitle"
@@ -38,11 +44,13 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="17dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
         android:text="name"
         android:textColor="@color/black"
-        android:textSize="30dp" />
+        android:textSize="30dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView2"
@@ -51,10 +59,12 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="8dp"
         android:text="Sudoku"
         android:textColor="@color/black"
-        android:textSize="30dp" />
+        android:textSize="30dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/puzzleTitle" />
 
     <ToggleButton
         android:id="@+id/lockgrid"
@@ -62,15 +72,17 @@
         android:layout_height="50dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
         android:background="@color/colorPrimary"
         android:backgroundTint="@color/colorPrimary"
         android:button="@drawable/lockunlock"
+        android:checked="false"
         android:padding="0dp"
         android:textOff=""
         android:textOn=""
-        android:checked="false"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/lockbutton"
@@ -78,8 +90,10 @@
         android:layout_height="59dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="100dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
         android:backgroundTint="@color/colorPrimary"
+        app:layout_constraintEnd_toStartOf="@+id/lockgrid"
+        app:layout_constraintTop_toTopOf="parent"
         app:strokeColor="@color/black" />
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

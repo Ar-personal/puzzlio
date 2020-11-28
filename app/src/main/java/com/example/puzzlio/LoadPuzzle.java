@@ -16,6 +16,7 @@ import android.widget.RelativeLayout;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 public class LoadPuzzle extends Puzzle{
 
@@ -27,7 +28,7 @@ public class LoadPuzzle extends Puzzle{
     private String author;
     private int puzzleType;
     private Button[][] gridButtons;
-    private RelativeLayout puzzleLayout;
+    private DrawerLayout puzzleLayout;
     private String[][] arrayValues;
     private Integer[][] arrayLocked, arrayBlack;
     private boolean load;
@@ -38,7 +39,7 @@ public class LoadPuzzle extends Puzzle{
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        puzzleLayout = (RelativeLayout) findViewById(R.id.puzzlelayout);
+        puzzleLayout = (DrawerLayout) findViewById(R.id.puzzlelayout);
 
 
         context = getApplicationContext();
@@ -218,11 +219,6 @@ public class LoadPuzzle extends Puzzle{
     @Override
     public Button[][] getGridButtons() {
         return gridButtons;
-    }
-
-    @Override
-    public RelativeLayout getPuzzleLayout() {
-        return puzzleLayout;
     }
 
     @Override

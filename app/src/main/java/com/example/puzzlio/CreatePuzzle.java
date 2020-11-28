@@ -38,6 +38,7 @@ public class CreatePuzzle extends AppCompatActivity implements AdapterView.OnIte
 
 
         Spinner spinner = findViewById(R.id.puzzleTypeSpinner);
+
         ArrayAdapter<CharSequence> arrayAdapter = ArrayAdapter.createFromResource(this, R.array.items, R.layout.spinnertext);
         arrayAdapter.setDropDownViewResource(R.layout.custom_spinner);
         spinner.setAdapter(arrayAdapter);

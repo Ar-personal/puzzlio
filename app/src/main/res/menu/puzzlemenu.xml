@@ -6,10 +6,6 @@
         android:icon="@drawable/ic_save_white_24dp"
         android:title="Item"
         app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/puzzlemenu"
-        android:icon="@drawable/ic_menu_white_30dp"
-        android:title="Item"
-        app:showAsAction="ifRoom" />
+
 
 </menu>

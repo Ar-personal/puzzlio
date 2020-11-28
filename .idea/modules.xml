@@ -3,9 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="puzzlescanner/app" />
-      <module fileurl="file://$PROJECT_DIR$/ocv/ocv.iml" filepath="$PROJECT_DIR$/ocv/ocv.iml" />
-      <module fileurl="file://C:/OpenCV-android-sdk/sdk/opencv.iml" filepath="C:/OpenCV-android-sdk/sdk/opencv.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ocv/ocv.iml" filepath="$PROJECT_DIR$/ocv/ocv.iml" group="puzzlescanner/ocv" />
+      <module fileurl="file://C:/OpenCV-android-sdk/sdk/opencv.iml" filepath="C:/OpenCV-android-sdk/sdk/opencv.iml" group="puzzlescanner/opencv" />
       <module fileurl="file://$PROJECT_DIR$/puzzlescanner.iml" filepath="$PROJECT_DIR$/puzzlescanner.iml" group="puzzlescanner" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sdk/puzzlescanner-sdk.iml" filepath="$PROJECT_DIR$/.idea/modules/sdk/puzzlescanner-sdk.iml" group="puzzlescanner/sdk" />
       <module fileurl="file://$PROJECT_DIR$/sdk/sdk.iml" filepath="$PROJECT_DIR$/sdk/sdk.iml" />
     </modules>
   </component>

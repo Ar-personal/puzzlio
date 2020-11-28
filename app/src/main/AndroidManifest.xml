@@ -2,11 +2,23 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.puzzlio">
 
+    <supports-screens
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true" />
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-feature android:name="android.hardware.camera" android:required="true"/>
-    <uses-feature android:name="android.hardware.camera2" android:required="true"/>
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera2"
+        android:required="true" />
+
     <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature
         android:name="android.hardware.camera.any"
         android:required="true" />
@@ -18,57 +30,70 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
+
+        </activity>
+        <activity android:name=".ImageProcessing"></activity>
+        <activity android:name=".PuzzleList"></activity>
+        <activity
+            android:name=".PuzzleAttachedMedia"
+            android:theme="@style/popupTheme"></activity>
+        <activity
+            android:name=".PopupScanCreate"
+            android:theme="@style/popupTheme"></activity>
+        <activity android:name=".CreatePuzzle" />
+        <activity
+            android:name=".SudokuCreator"
+            android:theme="@style/puzzleTheme" />
+        <activity android:name=".Crossword" />
+        <activity
+            android:name=".Puzzle"
+            android:theme="@style/customBar" />
+        <activity
+            android:name=".LoadPuzzle"
+            android:theme="@style/customBar" />
+        <activity
+            android:name=".ScanTest"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".SignIn"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".SignUpLogInActivity"
+            android:theme="@style/AppTheme" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-        <activity android:name=".ImageProcessing">
-
-        </activity>
-
-        <activity android:name=".PuzzleList">
-
-        </activity>
-
-        <activity android:name=".PopupScanCreate" android:theme="@style/popupTheme">
-        </activity>
-
-        <activity android:name=".CreatePuzzle"></activity>
-
-        <activity android:name=".SudokuCreator" android:theme="@style/puzzleTheme"></activity>
-
-        <activity android:name=".Crossword"></activity>
-
-        <activity android:name=".Puzzle" android:theme="@style/customBar"></activity>
-
-        <activity android:name=".LoadPuzzle" android:theme="@style/customBar"></activity>
-
-        <activity android:name=".ScanTest" android:theme="@style/AppTheme"></activity>
+        <activity
+            android:name=".EmailPasswordActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".BaseActivity"
+            android:theme="@style/AppTheme" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
+
             <!-- ressource file to create -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths">
-            </meta-data>
+                android:resource="@xml/file_paths"></meta-data>
         </provider>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
     </application>
 
 </manifest>

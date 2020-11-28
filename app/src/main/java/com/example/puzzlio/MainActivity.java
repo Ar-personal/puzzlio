@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     private String mCurrentPhotoPath;
     private ImageProcessing imageProcessing;
     private Bitmap bitmap, finalbmp;
-    private boolean editToggle = false;
+    public static boolean editToggle = false;
 
     private FragmentPagerAdapter fragmentPagerAdapter;
     private ViewPager viewPager;
@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
 
     private PuzzleList puzzleList;
     private SocialTab socialTab;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,12 +118,11 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
                         break;
                     case(R.id.edit):
                         editToggle = !editToggle;
+                        System.out.println(editToggle);
                         if(!editToggle && PuzzleList.puzzleList.size() > 0){
-                            findViewById(R.id.play).setVisibility(View.VISIBLE);
-                            findViewById(R.id.deletepuzzle).setVisibility(View.INVISIBLE);
+                            PuzzleList.enableEdit();
                         }else{
-                            findViewById(R.id.play).setVisibility(View.INVISIBLE);
-                            findViewById(R.id.deletepuzzle).setVisibility(View.VISIBLE);
+                            PuzzleList.disableEdit();
                         }
                 }
                 return true;

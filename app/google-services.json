@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "634845541422",
+    "firebase_url": "https://puzzlescanner-57e07.firebaseio.com",
+    "project_id": "puzzlescanner-57e07",
+    "storage_bucket": "puzzlescanner-57e07.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:634845541422:android:c4f42ee2a9482bfcc4dbbf",
+        "android_client_info": {
+          "package_name": "com.example.puzzlio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "634845541422-8lee3ue5mn6mvvdbk2r531gtar9hkb3v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEsXEQDqdmkbGmJcUe8ove1w120hXDBLw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "634845541422-8lee3ue5mn6mvvdbk2r531gtar9hkb3v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

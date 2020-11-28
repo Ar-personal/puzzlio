@@ -2,14 +2,18 @@ package com.example.puzzlio;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -36,6 +40,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.List;
 
 public class ScanTest extends AppCompatActivity {
@@ -53,6 +58,13 @@ public class ScanTest extends AppCompatActivity {
     private Bitmap gridBitmaps[][] = new Bitmap[9][9];
     private String [][] scannedVals = new String[9][9];
     private Context mContext;
+    private Uri imageUri;
+    private ContentValues values;
+
+    private static final int CAMERA_REQUEST = 1888;
+    private ImageView imageView, imageTest;
+    private static final int MY_CAMERA_PERMISSION_CODE = 100;
+    private int gridSize;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,45 +85,66 @@ public class ScanTest extends AppCompatActivity {
         }
 
         TextView textView = findViewById(R.id.ocrtext);
-        Button button1 = findViewById(R.id.processbutton);
+        Button processButton = findViewById(R.id.processbutton);
 
-        ImageView test = findViewById(R.id.imageView4);
+        imageTest = findViewById(R.id.imagetest);
 
-        //read image form file
-        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sudokuexample).copy(Bitmap.Config.ARGB_8888, true);
+        imageView = findViewById(R.id.imageView4);
 
+        //read image from file
+//        if(bitmap == null) {
+//            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sudokuexample).copy(Bitmap.Config.ARGB_8888, true);
+//        }
 
-        imageProcessing = new ImageProcessing(ScanTest.this);
-        //pass bitmap to class
-        imageProcessing.setBitmap(bitmap);
-
-        //returns a bitmap to display to imageview via button press
-        imageProcessing.img();
-
-
-        button1.setOnClickListener(new View.OnClickListener() {
+        Button capture = findViewById(R.id.capture);
+        capture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                test.setImageBitmap(bitmap);
-                test.setImageBitmap(finalbmp);
-                textView.setText("");
-
-                //pass image to tesseract and return ocr text
-
-
-                for(int i = 0; i < 9; i++){
-                    for(int j = 0; j < 9; j++){
-                        String res = getText(gridBitmaps[i][j]);
-                        scannedVals[i][j] = res;
-                        textView.append(res + " ");
-                    }
+                if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+                {
+                    requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
                 }
-
-
-//                textView.setText(res);
+                else
+                {
+                    values = new ContentValues();
+                    values.put(MediaStore.Images.Media.TITLE, "New Picture");
+                    values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
+                    imageUri = getContentResolver().insert(
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                    startActivityForResult(intent, CAMERA_REQUEST);
+                }
             }
         });
 
+        processButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                imageView.setImageBitmap(bitmap);
+//                textView.setText(getText(finalbmp));
+
+                imageProcessing = new ImageProcessing(ScanTest.this);
+                //pass bitmap to class
+                imageProcessing.setBitmap(bitmap);
+
+                //returns a bitmap to display to imageview via button press
+                imageProcessing.img();
+
+                int limit = 0;
+                for(int i = 0; i < 9; i++){
+                    for(int j = 0; j < 9; j++){
+                        if(limit < gridSize){
+                            String res = getText(gridBitmaps[i][j]);
+                            scannedVals[i][j] = res;
+                            textView.append(res + " ");
+                            limit++;
+                        }
+
+                    }
+                }
+            }
+        });
 
         //temp code
         Button createTest = findViewById(R.id.createtest);
@@ -131,7 +164,6 @@ public class ScanTest extends AppCompatActivity {
 
     }
 
-
     private void checkPermission() {
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 120);
@@ -141,45 +173,45 @@ public class ScanTest extends AppCompatActivity {
         }
     }
 
-
-
     public void setBitmaps(Mat m){
         finalbmp = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
 
         Utils.matToBitmap(m, finalbmp);
     }
 
-    public void writeMats(List<Mat> mats){
-
+    public void writeMats(Mat[][] mats, int size){
         //currently loops through hardcoded sudoku grid
-        int m = 0;
+        int n = 0;
+        int s = 0;
         for(int i = 0; i < 9; i++){
-            for(int j = 0; j < 9; j++){
-                try {
-                    gridBitmaps[i][j] = Bitmap.createBitmap(mats.get(m).cols(), mats.get(m).rows(), Bitmap.Config.ARGB_8888);
-                    Utils.matToBitmap(mats.get(m), gridBitmaps[i][j]);
+            for(int j = 0; j < 9; j++) {
+                if (s < size) {
+                    try {
+                        gridBitmaps[i][j] = Bitmap.createBitmap(mats[i][j].cols(), mats[i][j].rows(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(mats[i][j], gridBitmaps[i][j]);
+                    } catch (CvException o) {
+                        o.printStackTrace();
+                    } catch (IndexOutOfBoundsException p) {
+                        p.printStackTrace();
+                    }
+                    mats[i][j].release();
 
+                    File sd = new File(getExternalFilesDir("/grids").toString() + "/" + n + " " + ".png");
+                    n++;
+                    s++;
+                    try {
+                        sd.createNewFile();
+                        FileOutputStream out = new FileOutputStream(sd);
+                        gridBitmaps[i][j].compress(Bitmap.CompressFormat.PNG, 100, out);
+                        out.flush();
+                        out.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-                }catch (CvException o) {
-                    o.printStackTrace();
                 }
-
-                mats.get(m).release();
-
-
-                File sd = new File(getExternalFilesDir("/grids").toString() + "/" + m + ".png");
-                try {
-                    sd.createNewFile();
-                    FileOutputStream out = new FileOutputStream(sd);
-                    gridBitmaps[i][j].compress(Bitmap.CompressFormat.PNG, 100, out);
-                    out.flush();
-                    out.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                m++;
             }
         }
     }
@@ -197,6 +229,8 @@ public class ScanTest extends AppCompatActivity {
             dir.mkdir();
         }
         System.out.println(dir);
+        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_BLACKLIST, ";:'@#~[]{}-#-+=`!\"£$%^&*()/.,<>?|¬¦·•°‘„");
         tessBaseAPI.init(dataPath, "eng");
         tessBaseAPI.setImage(bitmap);
         String retStr = "No result";
@@ -209,10 +243,28 @@ public class ScanTest extends AppCompatActivity {
         return retStr;
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK)
+        {
+
+
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(
+                        getContentResolver(), imageUri);
+                Matrix matrix = new Matrix();
+                matrix.postRotate(90);
+                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                imageView.setImageBitmap(bitmap);
+                String imageUrl = getRealPathFromURI(imageUri);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
         if (requestCode == 1024) {
             if (resultCode == Activity.RESULT_OK) {
                 prepareTessData();
@@ -225,6 +277,14 @@ public class ScanTest extends AppCompatActivity {
         }
     }
 
+    public String getRealPathFromURI(Uri contentUri) {
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = managedQuery(contentUri, proj, null, null, null);
+        int column_index = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
+    }
 
     //load files into sd card
     private void prepareTessData() {
@@ -254,21 +314,24 @@ public class ScanTest extends AppCompatActivity {
 
     }
 
-
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         switch(requestCode){
-            case 120:
-                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
-                }else{
-                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+            case MY_CAMERA_PERMISSION_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+                    Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(cameraIntent, CAMERA_REQUEST);
                 }
-                return;
+                else
+                {
+                    Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+                }
+
+            case 120:
 
             case 121:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
@@ -280,4 +343,15 @@ public class ScanTest extends AppCompatActivity {
         }
     }
 
+    public void setImageTest(Bitmap imageTest) {
+        this.imageTest.setImageBitmap(imageTest);
+    }
+
+    public int getGridSize() {
+        return gridSize;
+    }
+
+    public void setGridSize(int gridSize) {
+        this.gridSize = gridSize;
+    }
 }

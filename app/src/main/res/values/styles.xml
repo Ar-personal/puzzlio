@@ -20,6 +20,15 @@
         <item name="android:windowCloseOnTouchOutside">true</item>
     </style>
 
+    <style name="navTheme" parent="Widget.Design.NavigationView">
+        <item name ="itemBackground">@color/appBlue</item>
+        <item name="itemFillColor">@color/colorPrimary</item>
+        <item name="itemShapeFillColor">@color/appBlue</item>
+        <item name="backgroundColor">@color/colorPrimary</item>
+        <item name="android:headerBackground">@color/appBlue</item>
+
+    </style>
+
     <style name="puzzleTheme" parent="Theme.MaterialComponents">
         <item name="android:windowBackground">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/appBlue</item>
@@ -29,6 +38,7 @@
     <style name="customBar" parent="Theme.MaterialComponents.NoActionBar">
 
     </style>
+
 
     <style name="spinnerItemStyle" parent="android:Widget.TextView.SpinnerItem">
     </style>

@@ -1,26 +1,39 @@
 package com.example.puzzlio;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapRegionDecoder;
 
 import com.example.puzzlio.MainActivity;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.utils.Converters;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import static org.opencv.imgproc.Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C;
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
 import static org.opencv.imgproc.Imgproc.GaussianBlur;
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
 import static org.opencv.imgproc.Imgproc.RETR_TREE;
+import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
+import static org.opencv.imgproc.Imgproc.accumulateSquare;
+import static org.opencv.imgproc.Imgproc.boundingRect;
 import static org.opencv.imgproc.Imgproc.dilate;
 import static org.opencv.imgproc.Imgproc.erode;
 import static org.opencv.imgproc.Imgproc.getStructuringElement;
@@ -31,79 +44,170 @@ public class ImageProcessing{
     private ScanTest scanTest;
     private Mat grayMat, largestMat;
     private Bitmap bitmap, finalbmp;
-    private double crosswordContourIdx;
+    private double crosswordContourIdx, gridIdx;
 
     public ImageProcessing(ScanTest scanTest){
         this.scanTest = scanTest;
     }
 
     public void img(){
-
+        Mat kernel3 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(7, 7));
+        Mat kernel11 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9, 9));
         Mat m = new Mat();
+        Mat adaptive = new Mat();
+        Mat cannyEdges = new Mat();
 
         Utils.bitmapToMat(bitmap, m);
 
+        Imgproc.cvtColor(m, m, Imgproc.COLOR_BGR2GRAY);
+
         //set image to greyscale
-        Imgproc.cvtColor(m, m, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.GaussianBlur(m, m, new Size(37, 37), 0);
+        Bitmap b0 = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(m, b0);
+        Imgproc.adaptiveThreshold(m, adaptive, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 61, 5);
+
         //invert white and blacks
+        Core.bitwise_not(adaptive, adaptive);
+        //repair lines
+
+        Imgproc.dilate(adaptive, adaptive, kernel11);
 
 
-        //create copy of greyscale image
-        grayMat = m.clone();
-        Mat cannyEdges = new Mat();
-        Mat lines= new Mat();
+        Bitmap b1 = Bitmap.createBitmap(adaptive.cols(), adaptive.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(adaptive, b1);
 
-        //dilation kernel
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
 
-        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
+//
 
-        Imgproc.dilate(grayMat, grayMat, kernel);
+//        Mat result = computeSkew(adaptive);
+//        Bitmap b2 = Bitmap.createBitmap(result.cols(), result.rows(), Bitmap.Config.ARGB_8888);
+//        Utils.matToBitmap(result, b2);
+
+        Mat cropped = cropToLargestContour(adaptive);
+
+
+        Bitmap b2 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(cropped, b2);
+
 
         //find line detection
-        Imgproc.Canny(grayMat, cannyEdges, 10, 200);
-        Imgproc.dilate(cannyEdges, cannyEdges, kernel);
+//        Imgproc.Canny(adaptive, cannyEdges, 10, 200);
+//        Imgproc.dilate(cannyEdges, cannyEdges, kernel5);
 
-        //merge line widths then thin them
+        Bitmap testbmp = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(cropped, testbmp);
+        scanTest.setImageTest(testbmp);
 
-        Imgproc.erode(cannyEdges, cannyEdges, kernel2);
+        erode(cropped, cropped, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9, 9)));
+        Bitmap b3 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(cropped, b3);
 
-        //firstcontours
-//        Core.merge();
+        Rect r = Imgproc.boundingRect(cropped);
 
-        Mat cropped = cropToLargestContour(cannyEdges);
+
+
+        Point topLeft = new Point(r.x, r.y), topRight = new Point(r.x + r.width, r.y), bottomLeft = new Point(r.x, r.y + r.height), bottomRight = new Point(r.x + r.width, r.y + r.height);
+        List<Point> source = new ArrayList<Point>();
+        source.add(topLeft);
+        source.add(topRight);
+        source.add(bottomRight);
+        source.add(bottomLeft);
+        Mat startM = Converters.vector_Point2f_to_Mat(source);
+
+        double m0 = Math.max(distance_between(topLeft, topRight), distance_between(topRight, bottomRight));
+        double m1 = Math.max(distance_between(bottomLeft, bottomRight), distance_between(topLeft, bottomLeft));
+        double side = Math.max(m0, m1);
+
+        Point ocvPOut1 = new Point(0, 0);
+        Point ocvPOut2 = new Point(side, 0);
+        Point ocvPOut3 = new Point(side, side);
+        Point ocvPOut4 = new Point(0, side);
+        List<Point> output = new ArrayList<Point>();
+        output.add(ocvPOut1);
+        output.add(ocvPOut2);
+        output.add(ocvPOut3);
+        output.add(ocvPOut4);
+        Mat endM = Converters.vector_Point2f_to_Mat(output);
+
+
+
+//        Rect newRect = new Rect(0, 0, (int) side, (int) side);
 //
+//        Mat src = new Mat(4, 1, CvType.CV_32FC2);
+//        src.put((int) topLeft.x, (int) topLeft.y, topRight.x, topRight.y, bottomLeft.x, bottomLeft.y, bottomRight.x, bottomRight.y);
+//
+//        Mat dst = new Mat(4, 1, CvType.CV_32FC2);
+//        dst.put(0,0, 0, cropped.width(), cropped.height(), cropped.width(), cropped.height(), 0);
+        Mat outputMat = new Mat((int) side, (int) side, CvType.CV_8UC4);
+        Mat perspectiveTransform = Imgproc.getPerspectiveTransform(startM, endM);
+        Imgproc.warpPerspective(cropped, outputMat, perspectiveTransform, new Size(side, side), INTER_CUBIC);
+
+        Bitmap b5 = Bitmap.createBitmap((int) side, (int) side, Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(outputMat, b5);
+
+        Bitmap b6 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(cropped, b6);
+
+        Bitmap b7 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(perspectiveTransform, b7);
+
         extractGrids(cropped);
-        //second
-//        Mat cropped2 = cropToSmallestContour(cropped);
-//
-//        Mat cropTest = cropTest(cropped);
-
-//        Imgproc.HoughLinesP(cropped, lines, 1, Math.PI/180, 50);
-//
-//        Mat houghLines = new Mat();
-//        houghLines.create(cropped.rows(), cropped.cols(), CvType.CV_8UC1);
-//
-//
-//        for (int i = 0; i < lines.cols(); i++)
-//        {
-//            double rho = lines.get(i, 0)[0],
-//                    theta = lines.get(i, 0)[1];
-//            double a = Math.cos(theta), b = Math.sin(theta);
-//            double x0 = a*rho, y0 = b*rho;
-//            Point pt1 = new Point(Math.round(x0 + 1000*(-b)), Math.round(y0 + 1000*(a)));
-//            Point pt2 = new Point(Math.round(x0 - 1000*(-b)), Math.round(y0 - 1000*(a)));
-//
-//
-//            Imgproc.line(houghLines, pt1, pt2, new Scalar(0, 0, 255), 3);
-//        }
-
-//       Toast.makeText(this, "" + lines.cols(), Toast.LENGTH_SHORT).show();
-
-        //bitmap creation and matToBitmap need to use same mat, use cropped for greyscale cropped image, without extra processing
 
         //set the bitmap to display image
         scanTest.setBitmaps(cropped);
+    }
+
+    public double distance_between(Point p1, Point p2){
+        double a = p2.x - p1.x;
+        double b = p2.y - p2.y;
+        return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+    }
+
+    public Mat computeSkew(Mat mat) {
+        //Load this image in grayscale
+        Mat img = mat;
+
+        Bitmap b1 = Bitmap.createBitmap(img.cols(), img.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(img, b1);
+
+        Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
+
+        //We can now perform our erosion, we must declare our rectangle-shaped structuring element and call the erode function
+        Imgproc.erode(img, img, element);
+
+        //Find all white pixels
+        Mat wLocMat = Mat.zeros(img.size(),img.type());
+        Core.findNonZero(img, wLocMat);
+
+        //Create an empty Mat and pass it to the function
+        MatOfPoint matOfPoint = new MatOfPoint( wLocMat );
+
+        //Translate MatOfPoint to MatOfPoint2f in order to user at a next step
+        MatOfPoint2f mat2f = new MatOfPoint2f();
+        matOfPoint.convertTo(mat2f, CvType.CV_32FC2);
+
+        //Get rotated rect of white pixels
+        RotatedRect rotatedRect = Imgproc.minAreaRect( mat2f );
+
+        Point[] vertices = new Point[4];
+        rotatedRect.points(vertices);
+        List<MatOfPoint> boxContours = new ArrayList<>();
+        boxContours.add(new MatOfPoint(vertices));
+        Imgproc.drawContours( img, boxContours, 0, new Scalar(128, 128, 128), -1);
+
+        double resultAngle = rotatedRect.angle;
+        if (rotatedRect.size.width > rotatedRect.size.height)
+        {
+            rotatedRect.angle += 90.f;
+        }
+
+        //Or
+        //rotatedRect.angle = rotatedRect.angle < -45 ? rotatedRect.angle + 90.f : rotatedRect.angle;
+
+        Mat result = deskew(mat, rotatedRect.angle );
+        return result;
+
     }
 
     public Mat cropToLargestContour(Mat mat){
@@ -134,6 +238,8 @@ public class ImageProcessing{
     }
 
 
+
+
     public Mat cropToSmallestContour(Mat mat) {
         Mat hierachy = new Mat();
         List<MatOfPoint> contours = new ArrayList<>();
@@ -157,111 +263,113 @@ public class ImageProcessing{
         return crop;
     }
 
-
-//    public Mat cropTest(Mat mat){
-//        Mat hierachy = new Mat();
-//        List<MatOfPoint> contours = new ArrayList<>();
-//        Imgproc.findContours(mat, contours, hierachy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-//        List<MatOfPoint> filteredContours = new ArrayList<>();
-//        double sizeLower = (crosswordContourIdx / 1000) * 8;
-//        double sizeHigher = (crosswordContourIdx /1000) * 12;
-//
-//        for (int contourIdx = 0; contourIdx < contours.size(); contourIdx++) {
-//            if(Imgproc.contourArea(contours.get(contourIdx)) < sizeLower || Imgproc.contourArea(contours.get(contourIdx)) > sizeHigher) {
-//                continue;
-//            }else{
-//                filteredContours.add(contours.get(contourIdx));
-//            }
-//        }
-//
-//        System.out.println("lower size = " + sizeLower + " " + "upper = " + " " + sizeHigher + " dims");
-//        Rect rect = Imgproc.boundingRect(filteredContours.get(10));
-//        System.out.println("largest contour:" + crosswordContourIdx + " " + "dims: " + Imgproc.contourArea(filteredContours.get(9)) + " " + "length of list: " + filteredContours.size());
-//        //110
-//        //13466
-//        Mat crop =  mat.submat(rect); //use m.submat for image without lines
-//        extractGrids(largestMat);
-//        return crop;
-//    }
-
     public void extractGrids(Mat grid){
-        Mat g;
-        System.out.println("dims " + grid.size());
-        int x = 0, y = 0;
-//        Rect rect = new Rect(x,  y, crop.width(), crop.height());
-        List<Mat> grids = new ArrayList<>();
+        //calculate the dims based on the puzzle size, should use passed var
 
-        int width = grid.width() / 9;
-        int height = grid.height() / 9;
-        Rect rect = new Rect(x, y, width, height);
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9, 9));
-        Mat erode = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9, 9));
 
-        for(int i = 0; i < 9; i++) {
-            rect.x = 0;
-            for (int o = 0; o < 9; o++) {
-                g = grid.submat(rect);
-                Mat m = g.submat(new Rect(18 , 18, width -33, height -33));
-//                Core.bitwise_not(m, m);
-//                resize(m, m, new Size(grid.width(), grid.height()), INTER_CUBIC);
-                grids.add(m);
+        Mat[][] grids = new Mat[9][9];
+        Mat hierachy = new Mat();
+        List<MatOfPoint> contours = new ArrayList<>(), trimmedContours = new ArrayList<>();
+        Imgproc.findContours(grid, contours, hierachy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 
-                rect.x += width;
+
+
+
+
+
+        //loop through all contours and calculate area of reasonable sizes
+        double contavg = 0, threshhold = 0, contourArea = 0, count = 0;
+        for (int contourIdx = 0; contourIdx < contours.size(); contourIdx++) {
+            Rect rect = Imgproc.boundingRect(contours.get(contourIdx));
+            Mat m = grid.submat(rect);
+            Bitmap b1 = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
+            Utils.matToBitmap(m, b1);
+            contourArea = Imgproc.contourArea(contours.get(contourIdx));
+            if (contourArea > 30000 && contourArea < 80000) {
+                contavg += contourArea;
+                count++;
+            }else{
+                contours.remove(contourIdx);
             }
-
-            rect.y += height;
         }
 
+        //margin of error based on the average
+        contavg = contavg / count;
+        threshhold = (contavg / 100) * 10;
 
-//        int yDif = crop.height();
-//            do {
-//                if(rect.x + crop.width() >= grid.width()){
-//                    int temp;
-//                    temp = ((rect.x + crop.width() - grid.width()));
-//                    rect.width = crop.width() - temp;
-//                    m = grid.submat(rect);
-//                    grids.add(m);
-//
-//                    rect.width = crop.width();
-//
-//                    if(rect.y + crop.height() >= grid.height()){
-//                        yDif = ((rect.y + crop.height() - grid.height()));
-//                        rect.height = crop.height() - yDif;
-//                    }else {
-//                        rect.y += crop.height();
-//                        rect.x = 0;
-//                    }
-//                }else{
-//                    m = grid.submat(rect);
-//                    grids.add(m);
-//                    rect.x += crop.width();
-//                }
-//
-//                if(rect.x + crop.width() >= grid.height() && rect.y + crop.height() >= grid.height())
-//                    break;
-//
-//
-//            }
-//            while (yDif == crop.height());
-
-            scanTest.writeMats(grids);
+        //choose all contours within threshold
+        for (int contourIdx = 0; contourIdx < contours.size(); contourIdx++) {
+            contourArea = Imgproc.contourArea(contours.get(contourIdx));
+            Rect rect = Imgproc.boundingRect(contours.get(contourIdx));
+            Mat m = grid.submat(rect);
+            Bitmap b1 = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
+            Utils.matToBitmap(m, b1);
+            if (contourArea < contavg + threshhold && contourArea > contavg - threshhold) {
+                System.out.println("contour width: " + contours.get(contourIdx).width() + " contour height: " + contours.get(contourIdx).height() + " contour area: " + contourArea);
+                System.out.println("contours " + contourArea);
 
 
+                trimmedContours.add(contours.get(contourIdx));
+
+            }
+        }
+
+        //arrange contours by left to right and top to bottom
+        Collections.sort(trimmedContours, new Comparator<MatOfPoint>() {
+            @Override
+            public int compare(MatOfPoint o1, MatOfPoint o2) {
+                Rect rect1 = Imgproc.boundingRect(o1);
+                Rect rect2 = Imgproc.boundingRect(o2);
+                int result = Double.compare(rect1.tl().y, rect2.tl().y);
+                return result;
+            }
+        } );
+
+
+//sort by x coordinates
+        Collections.sort(trimmedContours, new Comparator<MatOfPoint>() {
+            @Override
+            public int compare(MatOfPoint o1, MatOfPoint o2) {
+                Rect rect1 = Imgproc.boundingRect(o1);
+                Rect rect2 = Imgproc.boundingRect(o2);
+                int result = 0;
+                double total = rect1.tl().y/rect2.tl().y;
+                if (total>=0.9 && total<=1.4 ){
+                    result = Double.compare(rect1.tl().x, rect2.tl().x);
+                }
+                return result;
+            }
+        });
+
+
+        System.out.println("average: " + contavg);
+
+        int i = 0;
+        for(int x = 0; x < 9; x++){
+            for (int y = 0; y < 9; y++){
+                try {
+                    Rect rect = Imgproc.boundingRect(trimmedContours.get(i));
+                    Rect croppedGrid = new Rect(rect.x + 10, rect.y + 10, rect.width - 20, rect.height -20);
+                    Mat trimmed = grid.submat(croppedGrid);
+                    grids[x][y] = trimmed;
+                    i++;
+                }catch (IndexOutOfBoundsException o){
+                    o.printStackTrace();
+                }
+            }
+        }
+
+        scanTest.setGridSize(trimmedContours.size());
+        scanTest.writeMats(grids, trimmedContours.size());
     }
 
-
-    public Mat drawContours(Mat mat){
-        Mat hierachy = new Mat();
-        List<MatOfPoint> contours = new ArrayList<>();
-        Imgproc.findContours(mat, contours, hierachy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-
-
-
-        for (int i = 0; i < contours.size(); i++) {
-                Imgproc.drawContours(mat, contours, i, new Scalar(255, 0, 255), 3);
-        }
-
-        return mat;
+    public Mat deskew(Mat src, double angle) {
+        Point center = new Point(src.width()/2, src.height()/2);
+        Mat rotImage = Imgproc.getRotationMatrix2D(center, angle, 1.0);
+        //1.0 means 100 % scale
+        Size size = new Size(src.width(), src.height());
+        Imgproc.warpAffine(src, src, rotImage, size, Imgproc.INTER_LINEAR + Imgproc.CV_WARP_FILL_OUTLIERS);
+        return src;
     }
 
     public Bitmap getBitmap() {

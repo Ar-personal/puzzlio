@@ -20,6 +20,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private List<Puzzle> mData;
     private Context context;
     private ItemClickListener mClickListener;
+    private boolean isSelected;
+    public static ImageView v;
 
     // data is passed into the constructor
     public RecyclerViewAdapter(Context context, List<Puzzle> data) {
@@ -48,6 +50,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 System.out.println("unsupported puzzle type in recyclerviewadapter");
         }
 
+        v = holder.delete;
+
+        if(MainActivity.editToggle){
+            holder.delete.setVisibility(View.VISIBLE);
+        }else{
+            holder.delete.setVisibility(View.INVISIBLE);
+        }
 
         holder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +103,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             subtitle = itemView.findViewById(R.id.subtitle);
             icon = itemView.findViewById(R.id.icon);
             play = itemView.findViewById(R.id.play);
+
+
             delete = itemView.findViewById(R.id.deletepuzzle);
+
+
 
 
         }
@@ -119,4 +132,22 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public interface ItemClickListener {
         void onItemClick(View view, int position);
     }
+
+    public ImageView getV() {
+        return v;
+    }
+
+    public void setV(ImageView v) {
+        this.v = v;
+    }
+
+    public void toggleDel(){
+        v.setVisibility(View.VISIBLE);
+    }
+
+    public void disableEdit(){
+        v.setVisibility(View.INVISIBLE);
+    }
+
+
 }
