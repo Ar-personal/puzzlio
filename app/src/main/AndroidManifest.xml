@@ -37,11 +37,7 @@
         <activity android:name=".MainActivity">
 
         </activity>
-        <activity android:name=".ImageProcessing"></activity>
-        <activity android:name=".PuzzleList"></activity>
-        <activity
-            android:name=".PuzzleAttachedMedia"
-            android:theme="@style/popupTheme"></activity>
+
         <activity
             android:name=".PopupScanCreate"
             android:theme="@style/popupTheme"></activity>
@@ -49,7 +45,6 @@
         <activity
             android:name=".SudokuCreator"
             android:theme="@style/puzzleTheme" />
-        <activity android:name=".Crossword" />
         <activity
             android:name=".Puzzle"
             android:theme="@style/customBar" />
@@ -63,8 +58,15 @@
             android:name=".SignIn"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".SignUpLogInActivity"
+            android:name=".UserSettings"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".PasswordReset"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".MainLoginRegistry"
             android:theme="@style/AppTheme" >
+
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -73,8 +75,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".EmailPasswordActivity"
-            android:theme="@style/AppTheme" />
+            android:name=".EmailRegister"
+            android:theme="@style/AppTheme">
+
+
+        </activity>
+
+
         <activity
             android:name=".BaseActivity"
             android:theme="@style/AppTheme" />

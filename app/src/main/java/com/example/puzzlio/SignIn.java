@@ -1,15 +1,15 @@
 package com.example.puzzlio;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,12 +29,29 @@ public class SignIn extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        Button signInButton = findViewById(R.id.signinbutton);
+        Button signInButton = findViewById(R.id.createaccount);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String username = findViewById(R.id.signinusername).toString();
-                String password = findViewById(R.id.signinpassword).toString();
+                String username = findViewById(R.id.loginemail).toString();
+                String password = findViewById(R.id.loginpassword).toString();
+                signInWithEmailAndPassword(username, password);
+            }
+        });
+
+        Button signInBack = findViewById(R.id.registerback);
+        signInBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+        TextView logintrouble = findViewById(R.id.logintrouble);
+        logintrouble.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(SignIn.this, PasswordReset.class));
             }
         });
 
@@ -57,6 +74,7 @@ public class SignIn extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            startActivity(new Intent(getApplicationContext(), MainActivity.class));
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
@@ -64,7 +82,6 @@ public class SignIn extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
 
                         }
-
                     }
                 });
     }

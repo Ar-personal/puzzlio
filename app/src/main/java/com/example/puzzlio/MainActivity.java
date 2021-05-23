@@ -26,6 +26,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +35,7 @@ import com.example.puzzlio.R;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import org.opencv.android.Utils;
@@ -79,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
     private ViewPager viewPager;
 
     private RecyclerViewAdapter adapter;
-
+    private FirebaseAuth mAuth;
     private PuzzleList puzzleList;
     private SocialTab socialTab;
 
@@ -90,6 +93,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         setContentView(R.layout.activity_main);
         viewPager = findViewById(R.id.viewPager);
         setPagerAdapter();
+
+        mAuth = FirebaseAuth.getInstance();
+
+        if(mAuth.getCurrentUser() == null){
+            exitToLogin();
+        }
 
         checkPermission();
 
@@ -129,8 +138,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             }
         });
 
-
-
+        //central button optionality
         FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.fab);
         myFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -140,6 +148,19 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             }
         });
 
+
+        //Open user settings page from socialtab fragment
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(mAuth.getCurrentUser() == null){
+            exitToLogin();
+        }
     }
 
     private void setPagerAdapter(){
@@ -155,6 +176,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.bottom_nav, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    //signing the user out to re-authenticate
+    public void exitToLogin(){
+        startActivity(new Intent(MainActivity.this, MainLoginRegistry.class));
+        finish();
     }
 
 
