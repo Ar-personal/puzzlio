@@ -2,6 +2,7 @@ package com.example.puzzlio;
 
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,17 +30,23 @@ public class PasswordReset extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
 
-        EditText editText = findViewById(R.id.resetemail);
+        EditText userEmail = findViewById(R.id.resetemail);
         Button button = findViewById(R.id.passwordresetbtn);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String email = userEmail.getText().toString().trim();
 
-                Toast.makeText(getApplicationContext(), editText.getText(), Toast.LENGTH_SHORT).show();
-                mAuth.sendPasswordResetEmail(editText.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                if (TextUtils.isEmpty(email)) {
+                    Toast.makeText(getApplicationContext(), "Enter your email!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful()){Toast.makeText(getApplicationContext(), "Reset link sent to your email", Toast.LENGTH_LONG).show();
+                        if(task.isSuccessful()){
+                            Toast.makeText(getApplicationContext(), "Reset link sent to your email", Toast.LENGTH_LONG).show();
                         }
                     }
                 }).addOnSuccessListener(new OnSuccessListener<Void>() {

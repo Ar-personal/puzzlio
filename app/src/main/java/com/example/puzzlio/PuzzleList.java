@@ -4,31 +4,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.puzzlio.R;
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Set;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -44,10 +39,49 @@ public class PuzzleList extends Fragment implements Serializable {
                 LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState
         ) {
-            final View view = inflater.inflate(R.layout.fragment_home, container, false);
+            final View view = inflater.inflate(R.layout.puzzlelist, container, false);
             final RecyclerView recyclerView = view.findViewById(R.id.puzzles);
             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
             recyclerView.setLayoutManager(layoutManager);
+
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            FirebaseUser user = mAuth.getCurrentUser();
+            user.reload();
+
+            ConstraintLayout constraintLayout =  view.findViewById(R.id.homeverifcationpopup);
+
+            if(!user.isEmailVerified()){
+                constraintLayout.setVisibility(View.VISIBLE);
+            }
+
+
+            if(constraintLayout.getVisibility() == View.VISIBLE){
+                TextView verify = constraintLayout.findViewById(R.id.verifyemailhome);
+                TextView dismiss = constraintLayout.findViewById(R.id.verifyemailclose);
+
+                verify.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()){
+                                    Toast.makeText(getContext(), "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                                }else{
+                                    Toast.makeText(getContext(), "Failed to send verification email to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+                });
+
+                dismiss.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        constraintLayout.setVisibility(View.INVISIBLE);
+                    }
+                });
+            }
 
 
             sharedPreferences = getActivity().getSharedPreferences("shared preferences", MODE_PRIVATE);

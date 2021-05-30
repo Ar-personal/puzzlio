@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +50,11 @@ public class MainLoginRegistry extends AppCompatActivity {
 
         Button signInGoogle = findViewById(R.id.signinbutton);
         Button create = findViewById(R.id.createaccountnavbutton);
+        Button continueAsGuest = findViewById(R.id.continueasguest);
+        TextView passreset = findViewById(R.id.forgottenpasswordbutton);
+
+        EditText email = findViewById(R.id.signInEmail);
+        EditText pass = findViewById(R.id.signInPassword);
         Button signIn = findViewById(R.id.signinnavbutton);
 
         signInGoogle.setOnClickListener(new View.OnClickListener() {
@@ -64,9 +70,7 @@ public class MainLoginRegistry extends AppCompatActivity {
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainLoginRegistry.this, SignIn.class);
-                startActivity(intent);
-
+                signInWithUsernameAndPassword(email.getText().toString(), pass.getText().toString());
             }
         });
 
@@ -75,6 +79,21 @@ public class MainLoginRegistry extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainLoginRegistry.this, EmailRegister.class);
+                startActivity(intent);
+            }
+        });
+
+        continueAsGuest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                signInAnonymously();
+            }
+        });
+
+        passreset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainLoginRegistry.this, PasswordReset.class);
                 startActivity(intent);
             }
         });
@@ -159,7 +178,23 @@ public class MainLoginRegistry extends AppCompatActivity {
                 });
     }
 
-
+    public void signInAnonymously(){
+        mAuth.signInAnonymously()
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            startActivity(new Intent(MainLoginRegistry.this, MainActivity.class));
+                            finish();
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            System.err.println("Anonymous Auth Failed" + task.getException());
+                        }
+                    }
+                });
+    }
 
 
 

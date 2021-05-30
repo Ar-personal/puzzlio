@@ -1,5 +1,6 @@
 package com.example.puzzlio;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapRegionDecoder;
 
@@ -65,46 +66,47 @@ public class ImageProcessing{
         Imgproc.GaussianBlur(m, m, new Size(37, 37), 0);
         Bitmap b0 = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(m, b0);
-        Imgproc.adaptiveThreshold(m, adaptive, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 61, 5);
+        scanTest.writeImageToStorage(b0);
+
+
+        Imgproc.adaptiveThreshold(m, adaptive, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 67, 5);
+        Bitmap b1 = Bitmap.createBitmap(adaptive.cols(), adaptive.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(adaptive, b1);
+        scanTest.writeImageToStorage(b1);
 
         //invert white and blacks
         Core.bitwise_not(adaptive, adaptive);
+        Bitmap b2 = Bitmap.createBitmap(adaptive.cols(), adaptive.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(adaptive, b2);
+        scanTest.writeImageToStorage(b2);
         //repair lines
 
         Imgproc.dilate(adaptive, adaptive, kernel11);
-
-
-        Bitmap b1 = Bitmap.createBitmap(adaptive.cols(), adaptive.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(adaptive, b1);
-
+        Bitmap b3 = Bitmap.createBitmap(adaptive.cols(), adaptive.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(adaptive, b3);
+        scanTest.writeImageToStorage(b3);
 
 //
-
 //        Mat result = computeSkew(adaptive);
 //        Bitmap b2 = Bitmap.createBitmap(result.cols(), result.rows(), Bitmap.Config.ARGB_8888);
 //        Utils.matToBitmap(result, b2);
 
         Mat cropped = cropToLargestContour(adaptive);
-
-
-        Bitmap b2 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(cropped, b2);
-
+        Bitmap b4 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(cropped, b4);
+        scanTest.writeImageToStorage(b4);
 
         //find line detection
 //        Imgproc.Canny(adaptive, cannyEdges, 10, 200);
 //        Imgproc.dilate(cannyEdges, cannyEdges, kernel5);
 
-        Bitmap testbmp = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(cropped, testbmp);
-        scanTest.setImageTest(testbmp);
 
         erode(cropped, cropped, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9, 9)));
-        Bitmap b3 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(cropped, b3);
+        Bitmap b5 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(cropped, b5);
+        scanTest.writeImageToStorage(b5);
 
         Rect r = Imgproc.boundingRect(cropped);
-
 
 
         Point topLeft = new Point(r.x, r.y), topRight = new Point(r.x + r.width, r.y), bottomLeft = new Point(r.x, r.y + r.height), bottomRight = new Point(r.x + r.width, r.y + r.height);
@@ -132,27 +134,28 @@ public class ImageProcessing{
 
 
 
-//        Rect newRect = new Rect(0, 0, (int) side, (int) side);
-//
-//        Mat src = new Mat(4, 1, CvType.CV_32FC2);
-//        src.put((int) topLeft.x, (int) topLeft.y, topRight.x, topRight.y, bottomLeft.x, bottomLeft.y, bottomRight.x, bottomRight.y);
-//
-//        Mat dst = new Mat(4, 1, CvType.CV_32FC2);
-//        dst.put(0,0, 0, cropped.width(), cropped.height(), cropped.width(), cropped.height(), 0);
+        Rect newRect = new Rect(0, 0, (int) side, (int) side);
+
+        Mat src = new Mat(4, 1, CvType.CV_32FC2);
+        src.put((int) topLeft.x, (int) topLeft.y, topRight.x, topRight.y, bottomLeft.x, bottomLeft.y, bottomRight.x, bottomRight.y);
+
+        Mat dst = new Mat(4, 1, CvType.CV_32FC2);
+        dst.put(0,0, 0, cropped.width(), cropped.height(), cropped.width(), cropped.height(), 0);
         Mat outputMat = new Mat((int) side, (int) side, CvType.CV_8UC4);
         Mat perspectiveTransform = Imgproc.getPerspectiveTransform(startM, endM);
         Imgproc.warpPerspective(cropped, outputMat, perspectiveTransform, new Size(side, side), INTER_CUBIC);
+//
+        Bitmap b6 = Bitmap.createBitmap((int) side, (int) side, Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(outputMat, b6);
+        scanTest.writeImageToStorage(b6);
+//
+//        Bitmap b7 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
+//        Utils.matToBitmap(cropped, b7);
+//
+//        Bitmap b8 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
+//        Utils.matToBitmap(perspectiveTransform, b8);
 
-        Bitmap b5 = Bitmap.createBitmap((int) side, (int) side, Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(outputMat, b5);
-
-        Bitmap b6 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(cropped, b6);
-
-        Bitmap b7 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(perspectiveTransform, b7);
-
-        extractGrids(cropped);
+        extractGrids(outputMat);
 
         //set the bitmap to display image
         scanTest.setBitmaps(cropped);
@@ -271,7 +274,7 @@ public class ImageProcessing{
         Mat hierachy = new Mat();
         List<MatOfPoint> contours = new ArrayList<>(), trimmedContours = new ArrayList<>();
         Imgproc.findContours(grid, contours, hierachy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-
+        List<Bitmap> bitmapList = new ArrayList<>();
 
 
 
@@ -288,6 +291,7 @@ public class ImageProcessing{
             if (contourArea > 30000 && contourArea < 80000) {
                 contavg += contourArea;
                 count++;
+                bitmapList.add(b1);
             }else{
                 contours.remove(contourIdx);
             }
@@ -295,7 +299,7 @@ public class ImageProcessing{
 
         //margin of error based on the average
         contavg = contavg / count;
-        threshhold = (contavg / 100) * 10;
+        threshhold = (contavg / 100) * 9;
 
         //choose all contours within threshold
         for (int contourIdx = 0; contourIdx < contours.size(); contourIdx++) {
@@ -314,19 +318,6 @@ public class ImageProcessing{
             }
         }
 
-        //arrange contours by left to right and top to bottom
-        Collections.sort(trimmedContours, new Comparator<MatOfPoint>() {
-            @Override
-            public int compare(MatOfPoint o1, MatOfPoint o2) {
-                Rect rect1 = Imgproc.boundingRect(o1);
-                Rect rect2 = Imgproc.boundingRect(o2);
-                int result = Double.compare(rect1.tl().y, rect2.tl().y);
-                return result;
-            }
-        } );
-
-
-//sort by x coordinates
         Collections.sort(trimmedContours, new Comparator<MatOfPoint>() {
             @Override
             public int compare(MatOfPoint o1, MatOfPoint o2) {
@@ -341,6 +332,21 @@ public class ImageProcessing{
             }
         });
 
+        //arrange contours by left to right and top to bottom
+        Collections.sort(trimmedContours, new Comparator<MatOfPoint>() {
+            @Override
+            public int compare(MatOfPoint o1, MatOfPoint o2) {
+                Rect rect1 = Imgproc.boundingRect(o1);
+                Rect rect2 = Imgproc.boundingRect(o2);
+                int result = Double.compare(rect1.tl().y, rect2.tl().y);
+                return result;
+            }
+        } );
+
+
+//sort by x coordinates
+
+
 
         System.out.println("average: " + contavg);
 
@@ -349,7 +355,7 @@ public class ImageProcessing{
             for (int y = 0; y < 9; y++){
                 try {
                     Rect rect = Imgproc.boundingRect(trimmedContours.get(i));
-                    Rect croppedGrid = new Rect(rect.x + 10, rect.y + 10, rect.width - 20, rect.height -20);
+                    Rect croppedGrid = new Rect(rect.x + 14, rect.y + 35, rect.width - 50, rect.height -60);
                     Mat trimmed = grid.submat(croppedGrid);
                     grids[x][y] = trimmed;
                     i++;

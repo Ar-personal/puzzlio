@@ -7,20 +7,34 @@
     android:layout_height="match_parent">
 
 
+    <Button
+        android:id="@+id/continueasguest"
+        android:layout_width="204dp"
+        android:layout_height="58dp"
+        android:layout_below="@+id/signinnavbutton"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="60dp"
+        android:backgroundTint="@color/appGreen"
+        android:text="Continue As Guest"
+        app:layout_constraintBottom_toTopOf="@+id/signInEmail"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <com.shobhitpuri.custombuttons.GoogleSignInButton
         android:id="@+id/signinbutton"
         android:layout_width="218dp"
         android:layout_height="50dp"
         android:layout_centerInParent="true"
-        android:layout_marginTop="192dp"
+        android:layout_marginBottom="64dp"
         android:text="Login With Google"
         android:textColor="@color/hintGrey"
         app:isDarkTheme="false"
+        app:layout_constraintBottom_toTopOf="@+id/continueasguest"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.512"
-        app:layout_constraintStart_toStartOf="parent"
 
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="0.512"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/signinnavbutton"
@@ -30,13 +44,11 @@
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="20dp"
         android:backgroundTint="@color/appBlue"
-        android:text="Sign In With Email"
-        app:layout_constraintBottom_toTopOf="@+id/createaccountnavbutton"
+        android:text="Sign In"
+        app:layout_constraintBottom_toTopOf="@+id/forgottenpasswordbutton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sign_in_button"
-        app:layout_constraintVertical_bias="0.925" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/createaccountnavbutton"
@@ -44,11 +56,95 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/signinnavbutton"
         android:layout_alignParentEnd="true"
-        android:layout_marginBottom="192dp"
+        android:layout_marginBottom="28dp"
+        android:backgroundTint="@color/appBlue"
         android:text="Create Account"
+        app:layout_constraintBottom_toTopOf="@+id/textView11"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sign-in To Puzzlio"
+        android:textColor="@color/black"
+        android:textSize="28dp"
+        app:layout_constraintBottom_toTopOf="@+id/signinbutton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.344" />
+
+    <EditText
+        android:id="@+id/signInEmail"
+        android:layout_width="209dp"
+        android:layout_height="31dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/gridborder"
+        android:ems="10"
+        android:hint="email"
+        android:inputType="textEmailAddress"
+        android:textAlignment="center"
+        android:textColor="@color/hintGrey"
+        android:textColorHint="@color/hintGrey"
+        app:layout_constraintBottom_toTopOf="@+id/signInPassword"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/signInPassword"
+        android:layout_width="212dp"
+        android:layout_height="31dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/gridborder"
+        android:ems="10"
+        android:hint="password"
+        android:inputType="textPassword"
+        android:textAlignment="center"
+        android:textColorHint="@color/hintGrey"
+        app:layout_constraintBottom_toTopOf="@+id/signinnavbutton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textColor="@color/hintGrey"/>
+
+    <TextView
+        android:id="@+id/textView11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="36dp"
+        android:text="@string/termsofservice"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:backgroundTint="@color/appBlue"/>
+        android:textSize="10dp"/>
+
+    <TextView
+        android:id="@+id/textView12"
+        android:layout_width="31dp"
+        android:layout_height="29dp"
+        android:layout_marginBottom="12dp"
+        android:text="Or"
+        android:textColor="@color/black"
+        android:textSize="22dp"
+        app:layout_constraintBottom_toTopOf="@+id/createaccountnavbutton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/forgottenpasswordbutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Forgotten password?"
+        android:textColor="@color/appBlue"
+        app:layout_constraintBottom_toTopOf="@+id/textView12"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

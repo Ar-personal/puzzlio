@@ -104,12 +104,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             icon = itemView.findViewById(R.id.icon);
             play = itemView.findViewById(R.id.play);
 
-
             delete = itemView.findViewById(R.id.deletepuzzle);
-
-
-
-
         }
 
         @Override
@@ -133,13 +128,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         void onItemClick(View view, int position);
     }
 
-    public ImageView getV() {
-        return v;
-    }
-
-    public void setV(ImageView v) {
-        this.v = v;
-    }
 
     public void toggleDel(){
         v.setVisibility(View.VISIBLE);

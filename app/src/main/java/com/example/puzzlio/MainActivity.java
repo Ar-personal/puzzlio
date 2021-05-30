@@ -56,8 +56,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import butterknife.ButterKnife;
-
 import static org.opencv.imgproc.Imgproc.GaussianBlur;
 import static org.opencv.imgproc.Imgproc.adaptiveThreshold;
 import static org.opencv.imgproc.Imgproc.dilate;
@@ -184,12 +182,10 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         finish();
     }
 
-
     @Override
     public void onItemClick(View view, int position) {
         Toast.makeText(this, "You clicked " + adapter.getItem(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
     }
-
 
     private void checkPermission() {
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -199,59 +195,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 121);
         }
     }
-
-        private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
-                        "com.example.puzzlio.provider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, 1024);
-            }
-        }
-    }
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = image.getAbsolutePath();
-//        mCurrentPhotoPath = "drawable://" + R.drawable.ocr_sample1;
-        return image;
-    }
-
-//    private void startOCR(Uri imageUri){
-//        try{
-//            BitmapFactory.Options options = new BitmapFactory.Options();
-//            options.inJustDecodeBounds = false;
-//            options.inSampleSize = 7;
-//            Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, options);
-//            String result = this.getText(bitmap);
-//            textView.setText(result);
-//        }catch (Exception e){
-//            Log.e(TAG, e.getMessage());
-//        }
-//    }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -274,36 +217,4 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
                 }
         }
     }
-
-
-    private Mat processNoisy(Mat grayMat) {
-//        Mat element1 = getStructuringElement(MORPH_RECT, new Size(2, 2), new Point(1, 1));
-//        Mat element2 = getStructuringElement(MORPH_RECT, new Size(2, 2), new Point(1, 1));
-//        dilate(grayMat, grayMat, element1);
-//        erode(grayMat, grayMat, element2);
-
-        GaussianBlur(grayMat, grayMat, new Size(5, 5), 0);
-        // The thresold value will be used here
-        adaptiveThreshold(grayMat,  grayMat, 255, 1, 1, 11, 2);
-
-        return grayMat;
-    }
-
-    public Bitmap getBitmap() {
-        return bitmap;
-    }
-
-    public void setBitmap(Bitmap bitmap) {
-        this.bitmap = bitmap;
-    }
-
-    public Fragment getPuzzleList() {
-        return puzzleList;
-    }
-
-    public void setPuzzleList(PuzzleList puzzleList) {
-        this.puzzleList = puzzleList;
-    }
-
-
 }

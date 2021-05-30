@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -65,6 +66,7 @@ public class ScanTest extends AppCompatActivity {
     private ImageView imageView, imageTest;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
     private int gridSize;
+    private boolean canCreate = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -89,12 +91,13 @@ public class ScanTest extends AppCompatActivity {
 
         imageTest = findViewById(R.id.imagetest);
 
-        imageView = findViewById(R.id.imageView4);
 
         //read image from file
 //        if(bitmap == null) {
 //            bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sudokuexample).copy(Bitmap.Config.ARGB_8888, true);
 //        }
+
+        Button createTest = findViewById(R.id.createtest);
 
         Button capture = findViewById(R.id.capture);
         capture.setOnClickListener(new View.OnClickListener() {
@@ -114,6 +117,10 @@ public class ScanTest extends AppCompatActivity {
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                     startActivityForResult(intent, CAMERA_REQUEST);
+
+                    if(imageUri != null){
+                        processButton.setVisibility(View.VISIBLE);
+                    }
                 }
             }
         });
@@ -123,31 +130,37 @@ public class ScanTest extends AppCompatActivity {
             public void onClick(View view) {
 //                imageView.setImageBitmap(bitmap);
 //                textView.setText(getText(finalbmp));
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageProcessing = new ImageProcessing(ScanTest.this);
+                        //pass bitmap to class
+                        imageProcessing.setBitmap(bitmap);
 
-                imageProcessing = new ImageProcessing(ScanTest.this);
-                //pass bitmap to class
-                imageProcessing.setBitmap(bitmap);
+                        //returns a bitmap to display to imageview via button press
+                        imageProcessing.img();
 
-                //returns a bitmap to display to imageview via button press
-                imageProcessing.img();
+                        int limit = 0;
+                        for(int i = 0; i < 9; i++){
+                            for(int j = 0; j < 9; j++){
+                                if(limit < gridSize){
+                                    String res = getText(gridBitmaps[i][j]);
+                                    scannedVals[i][j] = res;
+                                    textView.append(res + " ");
+                                    limit++;
+                                }
 
-                int limit = 0;
-                for(int i = 0; i < 9; i++){
-                    for(int j = 0; j < 9; j++){
-                        if(limit < gridSize){
-                            String res = getText(gridBitmaps[i][j]);
-                            scannedVals[i][j] = res;
-                            textView.append(res + " ");
-                            limit++;
+                            }
                         }
-
                     }
-                }
+                });
+                createTest.setVisibility(View.VISIBLE);
+
             }
         });
 
         //temp code
-        Button createTest = findViewById(R.id.createtest);
+
         createTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -177,6 +190,23 @@ public class ScanTest extends AppCompatActivity {
         finalbmp = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
 
         Utils.matToBitmap(m, finalbmp);
+    }
+
+    //for testing, image extraction
+    public void writeImageToStorage(Bitmap bitmap){
+        File sd = new File(getExternalFilesDir("/tests").toString() + "/" + bitmap.hashCode() + " " + ".png");
+
+        try {
+            sd.createNewFile();
+            FileOutputStream out = new FileOutputStream(sd);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void writeMats(Mat[][] mats, int size){
@@ -229,9 +259,11 @@ public class ScanTest extends AppCompatActivity {
             dir.mkdir();
         }
         System.out.println(dir);
-        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_BLACKLIST, ";:'@#~[]{}-#-+=`!\"£$%^&*()/.,<>?|¬¦·•°‘„");
+        tessBaseAPI.setDebug(false);
         tessBaseAPI.init(dataPath, "eng");
+//        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "123456789 ");
+//        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_BLACKLIST, ";:'@#~[]{}-#-+=`!£$%^&*()/.,<>?|¬¦·•°‘„abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
         tessBaseAPI.setImage(bitmap);
         String retStr = "No result";
         try{
@@ -342,6 +374,7 @@ public class ScanTest extends AppCompatActivity {
                 return;
         }
     }
+
 
     public void setImageTest(Bitmap imageTest) {
         this.imageTest.setImageBitmap(imageTest);

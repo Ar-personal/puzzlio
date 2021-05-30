@@ -19,7 +19,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.lang.reflect.Array;
 
-import butterknife.OnItemSelected;
 
 public class CreatePuzzle extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 

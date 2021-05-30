@@ -8,9 +8,6 @@ import android.widget.Button;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
-import com.example.puzzlio.R;
 
 
 public class PopupScanCreate extends AppCompatActivity {
@@ -23,7 +20,7 @@ public class PopupScanCreate extends AppCompatActivity {
 
 
 
-        setContentView(R.layout.activity_popupscancreate);
+        setContentView(R.layout.popupscancreate);
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
