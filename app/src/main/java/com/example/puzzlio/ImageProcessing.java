@@ -50,7 +50,7 @@ public class ImageProcessing{
     }
 
     public void img(){
-        Mat kernelD = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(11, 11));
+        Mat kernelD = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(7, 7));
         Mat m = new Mat();
         Mat adaptive = new Mat();
 
@@ -58,13 +58,13 @@ public class ImageProcessing{
 
         Imgproc.cvtColor(m, m, Imgproc.COLOR_BGR2GRAY);
 
-        Imgproc.GaussianBlur(m, m, new Size(11, 11), 0);
+        Imgproc.GaussianBlur(m, m, new Size(13, 13), 0);
         Bitmap gaussian = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(m, gaussian);
         scanTest.writeImageToStorage(gaussian);
 
 
-        Imgproc.adaptiveThreshold(m, adaptive, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 55, 5);
+        Imgproc.adaptiveThreshold(m, adaptive, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 99, 7);
         Bitmap adaptiveThreshold = Bitmap.createBitmap(adaptive.cols(), adaptive.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(adaptive, adaptiveThreshold);
         scanTest.writeImageToStorage(adaptiveThreshold);
@@ -102,7 +102,6 @@ public class ImageProcessing{
 //        scanTest.writeImageToStorage(b5);
 
         Rect r = Imgproc.boundingRect(cropped);
-
 
 //        Point topLeft = new Point(r.x, r.y), topRight = new Point(r.x + r.width, r.y), bottomLeft = new Point(r.x, r.y + r.height), bottomRight = new Point(r.x + r.width, r.y + r.height);
 //        List<Point> source = new ArrayList<Point>();
@@ -149,7 +148,6 @@ public class ImageProcessing{
 //
 //        Bitmap b8 = Bitmap.createBitmap(cropped.cols(), cropped.rows(), Bitmap.Config.ARGB_8888);
 //        Utils.matToBitmap(perspectiveTransform, b8);
-
         extractGrids(cropped);
 
         //set the bitmap to display image
@@ -232,8 +230,6 @@ public class ImageProcessing{
     }
 
 
-
-
     public Mat cropToSmallestContour(Mat mat) {
         Mat hierachy = new Mat();
         List<MatOfPoint> contours = new ArrayList<>();
@@ -269,9 +265,6 @@ public class ImageProcessing{
         List<Bitmap> bitmapList = new ArrayList<>();
 
 
-
-
-
         //loop through all contours and calculate area of reasonable sizes
         double contavg = 0, threshhold = 0, contourArea = 0, count = 0;
         for (int contourIdx = 0; contourIdx < contours.size(); contourIdx++) {
@@ -280,12 +273,12 @@ public class ImageProcessing{
 //            Bitmap b1 = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
 //            Utils.matToBitmap(m, b1);
             contourArea = Imgproc.contourArea(contours.get(contourIdx));
-            if (contourArea > 55000 && contourArea < 80000) {
-//                Rect rect = Imgproc.boundingRect(contours.get(contourIdx));
-//                Mat trimmed = grid.submat(rect);
-//                Bitmap b = Bitmap.createBitmap(trimmed.cols(), trimmed.rows(), Bitmap.Config.ARGB_8888);
-//                Utils.matToBitmap(trimmed, b);
-//                bitmapList.add(b);
+            if (contourArea > 59000 && contourArea < 80000) {
+                Rect rect = Imgproc.boundingRect(contours.get(contourIdx));
+                Mat trimmed = grid.submat(rect);
+                Bitmap b = Bitmap.createBitmap(trimmed.cols(), trimmed.rows(), Bitmap.Config.ARGB_8888);
+                Utils.matToBitmap(trimmed, b);
+                bitmapList.add(b);
             }else{
                 contours.remove(contourIdx);
             }
@@ -338,24 +331,20 @@ public class ImageProcessing{
             }
         } );
 
-
         //trim and reprocess the contours
         for(MatOfPoint m : contours){
-            if(m == null){
-                continue;
-            }
                 try {
                     //crop manually?
                     Rect rect = Imgproc.boundingRect(m);
-                    Rect croppedGrid = new Rect(rect.x + 14, rect.y + 35, rect.width - 50, rect.height -60);
+                    Rect croppedGrid = new Rect(rect.x + 5, rect.y + 10, rect.width - 5, rect.height -12);
                     Mat trimmed = grid.submat(croppedGrid);
 
                     //erode then crop? a good erode may mean no manual cropping needed
-//                    Mat kernelE = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(13, 13));
-//                    erode(trimmed, trimmed, kernelE);
-//                    Bitmap b = Bitmap.createBitmap(trimmed.cols(), trimmed.rows(), Bitmap.Config.ARGB_8888);
-//                    Utils.matToBitmap(trimmed, b);
-//                    scanTest.writeImageToStorage(b);
+                    Mat kernelE = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9, 9));
+                    erode(trimmed, trimmed, kernelE);
+                    Bitmap b = Bitmap.createBitmap(trimmed.cols(), trimmed.rows(), Bitmap.Config.ARGB_8888);
+                    Utils.matToBitmap(trimmed, b);
+                    scanTest.writeImageToStorage(b);
 
                     grids.add(trimmed);
                 }catch (IndexOutOfBoundsException o){
@@ -363,36 +352,14 @@ public class ImageProcessing{
                 }
             }
 
-        scanTest.setGridSize(contours.size());
+        scanTest.setGridSize(81);
         scanTest.writeMats(grids);
 
-    }
-
-    public Mat deskew(Mat src, double angle) {
-        Point center = new Point(src.width()/2, src.height()/2);
-        Mat rotImage = Imgproc.getRotationMatrix2D(center, angle, 1.0);
-        //1.0 means 100 % scale
-        Size size = new Size(src.width(), src.height());
-        Imgproc.warpAffine(src, src, rotImage, size, Imgproc.INTER_LINEAR + Imgproc.CV_WARP_FILL_OUTLIERS);
-        return src;
-    }
-
-    public Bitmap getBitmap() {
-        return bitmap;
     }
 
     public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
     }
-
-    public Bitmap getFinalbmp() {
-        return finalbmp;
-    }
-
-    public void setFinalbmp(Bitmap finalbmp) {
-        this.finalbmp = finalbmp;
-    }
-
 
 
 }

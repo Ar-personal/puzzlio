@@ -144,7 +144,7 @@ public class ScanTest extends AppCompatActivity {
                         imageProcessing.img();
 
                         int limit = 0;
-                        for(int i = 0; i < gridBitmaps.size(); i++){
+                        for(int i = 0; i < gridBitmaps.size() -1; i++){
                             if(limit < gridSize){
                                 String res = getText((Bitmap) gridBitmaps.get(i));
                                 scannedValues.add(res);
