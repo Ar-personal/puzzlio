@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ScanTest extends AppCompatActivity {
@@ -56,8 +57,10 @@ public class ScanTest extends AppCompatActivity {
     private ImageProcessing imageProcessing;
     private Bitmap bitmap, finalbmp;
     private List<Mat> grids;
-    private Bitmap gridBitmaps[][] = new Bitmap[9][9];
-    private String [][] scannedVals = new String[9][9];
+//    private Bitmap gridBitmaps[][] = new Bitmap[9][9];
+    private ArrayList<Bitmap> gridBitmaps = new ArrayList();
+//    private String [][] scannedValues = new String[9][9];
+    private ArrayList<String> scannedValues = new ArrayList();
     private Context mContext;
     private Uri imageUri;
     private ContentValues values;
@@ -141,18 +144,16 @@ public class ScanTest extends AppCompatActivity {
                         imageProcessing.img();
 
                         int limit = 0;
-                        for(int i = 0; i < 9; i++){
-                            for(int j = 0; j < 9; j++){
-                                if(limit < gridSize){
-                                    String res = getText(gridBitmaps[i][j]);
-                                    scannedVals[i][j] = res;
-                                    textView.append(res + " ");
-                                    limit++;
-                                }
-
+                        for(int i = 0; i < gridBitmaps.size(); i++){
+                            if(limit < gridSize){
+                                String res = getText((Bitmap) gridBitmaps.get(i));
+                                scannedValues.add(res);
+                                textView.append(res + " ");
+                                limit++;
                             }
+
                         }
-                    }
+                        }
                 });
                 createTest.setVisibility(View.VISIBLE);
 
@@ -165,7 +166,7 @@ public class ScanTest extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), SudokuCreator.class);
-                intent.putExtra("valuesScanned", scannedVals);
+                intent.putExtra("valuesScanned", scannedValues);
                 intent.putExtra("type", 2);
                 intent.putExtra("title", "scanned sudoku");
                 intent.putExtra("dims", new int[]{9, 9});
@@ -209,41 +210,37 @@ public class ScanTest extends AppCompatActivity {
         }
     }
 
-    public void writeMats(Mat[][] mats, int size){
+    public void writeMats(List<Mat> mats){
         //currently loops through hardcoded sudoku grid
         int n = 0;
         int s = 0;
-        for(int i = 0; i < 9; i++){
-            for(int j = 0; j < 9; j++) {
-                if (s < size) {
-                    try {
-                        gridBitmaps[i][j] = Bitmap.createBitmap(mats[i][j].cols(), mats[i][j].rows(), Bitmap.Config.ARGB_8888);
-                        Utils.matToBitmap(mats[i][j], gridBitmaps[i][j]);
-                    } catch (CvException o) {
-                        o.printStackTrace();
-                    } catch (IndexOutOfBoundsException p) {
-                        p.printStackTrace();
-                    }
-                    mats[i][j].release();
+        for(int i = 0; i < mats.size(); i++){
+            try {
+                gridBitmaps.add(Bitmap.createBitmap(mats.get(i).cols(), mats.get(i).rows(), Bitmap.Config.ARGB_8888));
+                Utils.matToBitmap(mats.get(i), (Bitmap) gridBitmaps.get(i));
+            } catch (CvException o) {
+                o.printStackTrace();
+            } catch (IndexOutOfBoundsException p) {
+                p.printStackTrace();
+            }
+            mats.get(i).release();
 
-                    File sd = new File(getExternalFilesDir("/grids").toString() + "/" + n + " " + ".png");
-                    n++;
-                    s++;
-                    try {
-                        sd.createNewFile();
-                        FileOutputStream out = new FileOutputStream(sd);
-                        gridBitmaps[i][j].compress(Bitmap.CompressFormat.PNG, 100, out);
-                        out.flush();
-                        out.close();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                }
+            File sd = new File(getExternalFilesDir("/grids").toString() + "/" + n + " " + ".png");
+            n++;
+            s++;
+            try {
+                sd.createNewFile();
+                FileOutputStream out = new FileOutputStream(sd);
+                gridBitmaps.get(i).compress(Bitmap.CompressFormat.PNG, 100, out);
+                out.flush();
+                out.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
+
     }
 
     private String getText(Bitmap bitmap){
