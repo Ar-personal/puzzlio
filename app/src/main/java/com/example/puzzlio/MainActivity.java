@@ -65,15 +65,6 @@ import static org.opencv.imgproc.Imgproc.resize;
 
 public class MainActivity extends AppCompatActivity implements RecyclerViewAdapter.ItemClickListener{
 
-    private static final String TAG = MainActivity.class.getSimpleName();
-    public static final String TESS_DATA = "/tessdata";
-    private TextView textView;
-    private TessBaseAPI tessBaseAPI;
-    private Uri outputFileDir;
-    private String DATA_PATH, DATA_PATH_LOCAL;
-    private String mCurrentPhotoPath;
-    private ImageProcessing imageProcessing;
-    private Bitmap bitmap, finalbmp;
     public static boolean editToggle = false;
 
     private FragmentPagerAdapter fragmentPagerAdapter;

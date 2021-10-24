@@ -43,7 +43,6 @@
       <sourceFolder url="file://C:/OpenCV-android-sdk/sdk/build/generated/source/buildConfig/debug" isTestSource="false" generated="true" />
       <sourceFolder url="file://C:/OpenCV-android-sdk/sdk/java/res" type="java-resource" />
       <sourceFolder url="file://C:/OpenCV-android-sdk/sdk/build/generated/res/resValues/debug" type="java-resource" />
-      <sourceFolder url="file://C:/OpenCV-android-sdk/sdk/libcxx_helper" isTestSource="false" />
       <sourceFolder url="file://C:/OpenCV-android-sdk/sdk/libcxx_helper" />
       <excludeFolder url="file://C:/OpenCV-android-sdk/sdk/.cxx" />
       <excludeFolder url="file://C:/OpenCV-android-sdk/sdk/.externalNativeBuild" />

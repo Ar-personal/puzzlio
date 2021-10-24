@@ -31,6 +31,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class SudokuCreator extends AppCompatActivity implements Serializable{
 
@@ -42,8 +43,9 @@ public class SudokuCreator extends AppCompatActivity implements Serializable{
     private int puzzleType;
     private TextView puzzleTitle;
     private Integer[][] arrayLocked, arrayBlack;
-    private String[][] arrayValues;
+    private ArrayList<String> arrayValues;
     private boolean scanned;
+    static int a = 0;
     // 0 = topleft, 1= top, 2 = top right, 3 = left, 4 = center, 5 = right, 6 = inner right, 7 = inner left 8 = bottom 9 = bottom right, 10 = right4bottom2, 11 = inner top right, 12 = inner top left, 13 = inner bottom left, 14 = bottomleft, 15 = inner bottom, 16 = innerbottomright, 17 = right bottom
     private int[][] backGroundMap = {{0, 1, 11, 12, 1, 11, 12, 1, 2}, {3, 4, 6, 7, 4, 6, 7, 4, 5}, {23, 15, 16, 13, 15, 16, 13, 15, 10}, {21, 20, 22, 24, 20, 22, 24, 20, 25}, {3, 4, 6, 7, 4, 6, 7, 4, 5}, {23, 15, 16, 13, 15, 16, 13, 15, 10}, {21, 20, 22, 24, 20, 22, 24, 20, 25}, {3, 4, 6, 7, 4, 6, 7, 4, 5}, {14, 8, 17, 19, 8, 17, 19, 8, 9}};
 
@@ -67,10 +69,8 @@ public class SudokuCreator extends AppCompatActivity implements Serializable{
 
         //if the puzzle was scanned in then creating a new object here will lose the scanned data
         if(!scanned) {
-            arrayValues = new String[dims[0]][dims[1]];
+            arrayValues = new ArrayList();
         }
-
-
 
         puzzleTitle = findViewById(R.id.puzzleTitle);
         puzzleTitle.setText(title);
@@ -106,10 +106,12 @@ public class SudokuCreator extends AppCompatActivity implements Serializable{
 
 
         //puzzle grid
+
         for(int y = 0; y < gridButtons.length; y++){
                 X = 0;
             for(int x = 0; x < gridButtons[y].length; x++){
                 final int j = x , k = y;
+
 
                 gridButtons[x][y] = new Button(this);
                 gridButtons[x][y].setX(X);
@@ -239,8 +241,10 @@ public class SudokuCreator extends AppCompatActivity implements Serializable{
 
                                             String text = input.getText().toString();
                                             gridButtons[j][k].setText(text);
-                                            arrayValues[j][k] = gridButtons[j][k].getText().toString();
+                                            arrayValues.set(a, gridButtons[j][k].getText().toString());
+                                            a++;
                                             input.clearFocus();
+
                                             break;
                                     }
                                     return false;
@@ -285,11 +289,16 @@ public class SudokuCreator extends AppCompatActivity implements Serializable{
         }
 
         if(scanned){
-            arrayValues = (String[][]) extras.get("valuesScanned");
-
+            arrayValues = (ArrayList<String>) extras.get("valuesScanned");
+            int a = 0;
             for(int i = 0; i < dims[1]; i++){
                 for(int j = 0; j < dims[0]; j++){
-                    gridButtons[j][i].setText(arrayValues[i][j]);
+                    try {
+                        gridButtons[j][i].setText(arrayValues.get(a));
+                    } catch (IndexOutOfBoundsException e) {
+                        e.printStackTrace();
+                    }
+                    a++;
                 }
             }
         }
@@ -325,15 +334,13 @@ public class SudokuCreator extends AppCompatActivity implements Serializable{
     }
 
     private void prepareArrays(Button[][] b) {
-
-
+        int a = 0;
         for(int i = 0; i < b.length; i++){
             for(int j = 0; j < b[i].length; j++){
 
-
                 CharSequence v1 = b[i][j].getText();
                 if(v1.toString() != "" || v1 != null) {
-                    arrayValues[i][j] = String.valueOf(v1);
+                    arrayValues.set(a, String.valueOf(v1));
                 }
 
             }

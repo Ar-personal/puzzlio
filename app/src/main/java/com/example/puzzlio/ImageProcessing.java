@@ -44,13 +44,14 @@ public class ImageProcessing{
 
     private ScanTest scanTest;
     private Bitmap bitmap, finalbmp;
+    private List<Bitmap> bitmapList, removedBitmapList;
 
     public ImageProcessing(ScanTest scanTest){
         this.scanTest = scanTest;
     }
 
     public void img(){
-        Mat kernelD = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(7, 7));
+        Mat kernelD = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(6, 6));
         Mat m = new Mat();
         Mat adaptive = new Mat();
 
@@ -58,7 +59,7 @@ public class ImageProcessing{
 
         Imgproc.cvtColor(m, m, Imgproc.COLOR_BGR2GRAY);
 
-        Imgproc.GaussianBlur(m, m, new Size(13, 13), 0);
+        Imgproc.GaussianBlur(m, m, new Size(15, 15), 0);
         Bitmap gaussian = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(m, gaussian);
         scanTest.writeImageToStorage(gaussian);
@@ -230,132 +231,154 @@ public class ImageProcessing{
     }
 
 
-    public Mat cropToSmallestContour(Mat mat) {
-        Mat hierachy = new Mat();
-        List<MatOfPoint> contours = new ArrayList<>();
-        Imgproc.findContours(mat, contours, hierachy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+//    public Mat cropToSmallestContour(Mat mat) {
+//        Mat hierachy = new Mat();
+//        List<MatOfPoint> contours = new ArrayList<>();
+//        Imgproc.findContours(mat, contours, hierachy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+//
+//        double smallest_area = 0;
+//        int smallest_contour_index = 0;
+//        int minContourSize = 1;
+//
+//        for (int contourIdx = 0; contourIdx < contours.size(); contourIdx++) {
+//            double contourArea = Imgproc.contourArea(contours.get(contourIdx));
+//            if (contourArea < smallest_area && contourArea > minContourSize) {
+//                smallest_area = contourArea;
+//                smallest_contour_index = contourIdx;
+//            }
+//        }
+//
+//        Rect rect = Imgproc.boundingRect(contours.get(smallest_contour_index));
+//        Mat crop =  mat.submat(rect); //use m.submat for image without lines
+//
+//        return crop;
+//    }
 
-        double smallest_area = 0;
-        int smallest_contour_index = 0;
-        int minContourSize = 1;
-
-        for (int contourIdx = 0; contourIdx < contours.size(); contourIdx++) {
-            double contourArea = Imgproc.contourArea(contours.get(contourIdx));
-            if (contourArea < smallest_area && contourArea > minContourSize) {
-                smallest_area = contourArea;
-                smallest_contour_index = contourIdx;
-            }
-        }
-
-        Rect rect = Imgproc.boundingRect(contours.get(smallest_contour_index));
-        Mat crop =  mat.submat(rect); //use m.submat for image without lines
-
-        return crop;
-    }
-
-    public void extractGrids(Mat grid){
-        //calculate the dims based on the puzzle size, should use passed var
-
-        List gridList = new ArrayList<Mat>();
-//        Mat[][] grids = new Mat[9][9];
-        ArrayList<Mat> grids = new ArrayList();
-        Mat hierachy = new Mat();
-        List<MatOfPoint> contours = new ArrayList<>();
-        Imgproc.findContours(grid, contours, hierachy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-        List<Bitmap> bitmapList = new ArrayList<>();
-
-
-        //loop through all contours and calculate area of reasonable sizes
-        double contavg = 0, threshhold = 0, contourArea = 0, count = 0;
-        for (int contourIdx = 0; contourIdx < contours.size(); contourIdx++) {
-//            Rect rect = Imgproc.boundingRect(contours.get(contourIdx));
-//            Mat m = grid.submat(rect);
-//            Bitmap b1 = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
-//            Utils.matToBitmap(m, b1);
-            contourArea = Imgproc.contourArea(contours.get(contourIdx));
-            if (contourArea > 59000 && contourArea < 80000) {
-                Rect rect = Imgproc.boundingRect(contours.get(contourIdx));
+    public void trimContoursToThresholds(List<MatOfPoint> contoursCopy, Mat grid, double lower, double higher){
+        double contourArea;
+        bitmapList = new ArrayList<>();
+        removedBitmapList = new ArrayList<>();
+        for (int contourIdx = 0; contourIdx < contoursCopy.size(); contourIdx++) {
+            contourArea = Imgproc.contourArea(contoursCopy.get(contourIdx));
+            if (contourArea > lower && contourArea < higher) {
+                Rect rect = Imgproc.boundingRect(contoursCopy.get(contourIdx));
                 Mat trimmed = grid.submat(rect);
                 Bitmap b = Bitmap.createBitmap(trimmed.cols(), trimmed.rows(), Bitmap.Config.ARGB_8888);
                 Utils.matToBitmap(trimmed, b);
                 bitmapList.add(b);
             }else{
-                contours.remove(contourIdx);
+                Rect rect = Imgproc.boundingRect(contoursCopy.get(contourIdx));
+                Mat trimmed = grid.submat(rect);
+                Bitmap b = Bitmap.createBitmap(trimmed.cols(), trimmed.rows(), Bitmap.Config.ARGB_8888);
+                Utils.matToBitmap(trimmed, b);
+                removedBitmapList.add(b);
+                contoursCopy.remove(contourIdx);
+            }
+        }
+    }
+
+    public void extractGrids(Mat grid){
+
+//        Mat[][] grids = new Mat[9][9];
+        ArrayList<Mat> grids = new ArrayList();
+        Mat hierachy = new Mat();
+        List<MatOfPoint> contours = new ArrayList<>();
+        Imgproc.findContours(grid, contours, hierachy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+        List<MatOfPoint> contoursCopy = new ArrayList<>(contours);
+        bitmapList = new ArrayList<>();
+        removedBitmapList = new ArrayList<>();
+        boolean maxed = false;
+
+        double contAvg = 0;
+        for (int contourIdx = 0; contourIdx < contours.size(); contourIdx++) {
+            contAvg += Imgproc.contourArea(contours.get(contourIdx));
+        }
+
+        contAvg = contAvg / contours.size();
+        double lower = contAvg -= 20000;
+        double higher = contAvg += 2000;
+        int iterations = 0;
+        //loop through all contours and calculate area of reasonable sizes
+
+        while(!maxed){
+            if(lower < 50000 || bitmapList.size() >= 81) {
+                break;
+            }
+            contoursCopy = new ArrayList<>(contours);
+            if(bitmapList.size() < 81) {
+                trimContoursToThresholds(contoursCopy, grid, lower, higher);
+                lower -= 1000;
+                higher += 1000;
+                System.out.println(iterations);
+                iterations++;
+            }else{
+                maxed = true;
             }
         }
 
-        //margin of error based on the average
-//        contavg = contavg / count;
-//        threshhold = (contavg / 100) * 9;
-//
-//        //choose all contours within threshold
-//        for (int contourIdx = 0; contourIdx < contours.size(); contourIdx++) {
-//            contourArea = Imgproc.contourArea(contours.get(contourIdx));
-//            Rect rect = Imgproc.boundingRect(contours.get(contourIdx));
-//            Mat m = grid.submat(rect);
-//            Bitmap b1 = Bitmap.createBitmap(m.cols(), m.rows(), Bitmap.Config.ARGB_8888);
-//            Utils.matToBitmap(m, b1);
-//            if (contourArea < contavg + threshhold && contourArea > contavg - threshhold) {
-//                System.out.println("contour width: " + contours.get(contourIdx).width() + " contour height: " + contours.get(contourIdx).height() + " contour area: " + contourArea);
-//                System.out.println("contours " + contourArea);
-//
-//
-//                trimmedContours.add(contours.get(contourIdx));
-//
-//            }
-//        }
+        contours = new ArrayList<>(contoursCopy);
 
         //arrange contours by left to right and top to bottom
-        Collections.sort(contours, new Comparator<MatOfPoint>() {
-            @Override
-            public int compare(MatOfPoint o1, MatOfPoint o2) {
-                Rect rect1 = Imgproc.boundingRect(o1);
-                Rect rect2 = Imgproc.boundingRect(o2);
-                int result = 0;
-                double total = rect1.tl().y/rect2.tl().y;
-                if (total>=0.9 && total<=1.4 ){
-                    result = Double.compare(rect1.tl().x, rect2.tl().x);
+        try {
+            Collections.sort(contours, new Comparator<MatOfPoint>() {
+                @Override
+                public int compare(MatOfPoint o1, MatOfPoint o2) {
+                    Rect rect1 = Imgproc.boundingRect(o1);
+                    Rect rect2 = Imgproc.boundingRect(o2);
+                    int result = 0;
+                    double total = rect1.tl().y/rect2.tl().y;
+                    if (total>=0.9 && total<=1.4 ){
+                        result = Double.compare(rect1.tl().x, rect2.tl().x);
+                    }
+                    return result;
                 }
-                return result;
-            }
-        });
+            });
 
 
-        Collections.sort(contours, new Comparator<MatOfPoint>() {
-            @Override
-            public int compare(MatOfPoint o1, MatOfPoint o2) {
-                Rect rect1 = Imgproc.boundingRect(o1);
-                Rect rect2 = Imgproc.boundingRect(o2);
-                int result = Double.compare(rect1.tl().y, rect2.tl().y);
-                return result;
-            }
-        } );
+            Collections.sort(contours, new Comparator<MatOfPoint>() {
+                @Override
+                public int compare(MatOfPoint o1, MatOfPoint o2) {
+                    Rect rect1 = Imgproc.boundingRect(o1);
+                    Rect rect2 = Imgproc.boundingRect(o2);
+                    int result = Double.compare(rect1.tl().y, rect2.tl().y);
+                    return result;
+                }
+            } );
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            System.out.println("contours length: "+ contours.size());
+        }
 
         //trim and reprocess the contours
         for(MatOfPoint m : contours){
-                try {
                     //crop manually?
                     Rect rect = Imgproc.boundingRect(m);
-                    Rect croppedGrid = new Rect(rect.x + 5, rect.y + 10, rect.width - 5, rect.height -12);
-                    Mat trimmed = grid.submat(croppedGrid);
+//                    Rect croppedGrid = new Rect(rect.x + 5, rect.y + 10, rect.width - 5, rect.height -10);
+                    Mat trimmed = grid.submat(rect);
+                    Mat border = new Mat();
+
+                    Mat kernelE = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(7, 7));
+                    erode(trimmed, trimmed, kernelE);
+
+                    Imgproc.rectangle(trimmed, new Point(0, 0), new Point(0 + trimmed.width(), 0 + trimmed.height()), new Scalar(0, 0, 0), 30);
+
+
+//                     Core.copyMakeBorder(trimmed, border, 50, 50, 50, 50, Core.BORDER_ISOLATED);
+//                    Mat cropped = cropToSmallestContour(trimmed);
 
                     //erode then crop? a good erode may mean no manual cropping needed
-                    Mat kernelE = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9, 9));
-                    erode(trimmed, trimmed, kernelE);
                     Bitmap b = Bitmap.createBitmap(trimmed.cols(), trimmed.rows(), Bitmap.Config.ARGB_8888);
                     Utils.matToBitmap(trimmed, b);
                     scanTest.writeImageToStorage(b);
 
                     grids.add(trimmed);
-                }catch (IndexOutOfBoundsException o){
-                    o.printStackTrace();
-                }
             }
 
         scanTest.setGridSize(81);
         scanTest.writeMats(grids);
 
     }
+
 
     public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;

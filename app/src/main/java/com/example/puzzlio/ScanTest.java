@@ -10,10 +10,13 @@ import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +27,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -36,6 +40,7 @@ import org.opencv.core.CvException;
 import org.opencv.core.Mat;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,6 +48,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ScanTest extends AppCompatActivity {
@@ -56,6 +62,7 @@ public class ScanTest extends AppCompatActivity {
     private String mCurrentPhotoPath;
     private ImageProcessing imageProcessing;
     private Bitmap bitmap, finalbmp;
+    private Bitmap galleryBitmap;
     private List<Mat> grids;
 //    private Bitmap gridBitmaps[][] = new Bitmap[9][9];
     private ArrayList<Bitmap> gridBitmaps = new ArrayList();
@@ -65,9 +72,8 @@ public class ScanTest extends AppCompatActivity {
     private Uri imageUri;
     private ContentValues values;
 
-    private static final int CAMERA_REQUEST = 1888;
+    private static final int CAMERA_REQUEST = 1888, MY_CAMERA_PERMISSION_CODE = 100, SELECT_PICTURE = 200;
     private ImageView imageView, imageTest;
-    private static final int MY_CAMERA_PERMISSION_CODE = 100;
     private int gridSize;
     private boolean canCreate = false;
 
@@ -92,7 +98,6 @@ public class ScanTest extends AppCompatActivity {
         TextView textView = findViewById(R.id.ocrtext);
         Button processButton = findViewById(R.id.processbutton);
 
-        imageTest = findViewById(R.id.imagetest);
 
 
         //read image from file
@@ -128,27 +133,58 @@ public class ScanTest extends AppCompatActivity {
             }
         });
 
+
+        Button capture2 = findViewById(R.id.capture2);
+        capture2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                    Intent i = new Intent();
+                    i.setType("image/*");
+                    i.setAction(Intent.ACTION_GET_CONTENT);
+
+                    // pass the constant to compare it
+                    // with the returned requestCode
+                    startActivityForResult(Intent.createChooser(i, "Select Picture"), SELECT_PICTURE);
+
+                    processButton.setVisibility(View.VISIBLE);
+
+            }
+        });
+
         processButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                imageView.setImageBitmap(bitmap);
 //                textView.setText(getText(finalbmp));
-                AsyncTask.execute(new Runnable() {
-                    @Override
-                    public void run() {
+//                AsyncTask.execute(new Runnable() {
+//                    @Override
+//                    public void run() {
                         imageProcessing = new ImageProcessing(ScanTest.this);
                         //pass bitmap to class
                         imageProcessing.setBitmap(bitmap);
 
                         //returns a bitmap to display to imageview via button press
                         imageProcessing.img();
-
+                        List<Integer> allowed = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9));
                         int limit = 0;
                         for(int i = 0; i < gridBitmaps.size() -1; i++){
                             if(limit < gridSize){
                                 String res = getText((Bitmap) gridBitmaps.get(i));
+                                //filter out special characters/letters
+//                                try {
+//                                    if((!allowed.contains(Integer.parseInt(res)))){
+//                                        res = "";
+//                                    }
+//                                } catch (NumberFormatException e) {
+//                                    e.printStackTrace();
+//                                    res = "";
+//                                    scannedValues.add(res);
+//                                    textView.append(res + " ");
+//                                }
                                 scannedValues.add(res);
                                 textView.append(res + " ");
+
                                 limit++;
                             }
 
@@ -157,8 +193,8 @@ public class ScanTest extends AppCompatActivity {
                 });
                 createTest.setVisibility(View.VISIBLE);
 
-            }
-        });
+//            }
+//        });
 
         //temp code
 
@@ -272,6 +308,7 @@ public class ScanTest extends AppCompatActivity {
         return retStr;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -303,6 +340,33 @@ public class ScanTest extends AppCompatActivity {
             } else {
                 Toast.makeText(getApplicationContext(), "Activity result failed.", Toast.LENGTH_SHORT).show();
             }
+        }
+
+        if (requestCode == SELECT_PICTURE) {
+            // Get the url of the image from data
+            Uri selectedImageUri = data.getData();
+            if (null != selectedImageUri) {
+                // update the preview image in the layout
+                uriToBitmap(selectedImageUri);
+            }
+        }
+    }
+
+    private void uriToBitmap(Uri selectedFileUri) {
+        try {
+            ParcelFileDescriptor parcelFileDescriptor =
+                    getContentResolver().openFileDescriptor(selectedFileUri, "r");
+            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+            bitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+
+            float degrees = 90; //rotation degree
+            Matrix matrix = new Matrix();
+            matrix.setRotate(degrees);
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+            parcelFileDescriptor.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
